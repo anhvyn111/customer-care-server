@@ -1,8 +1,8 @@
 const router = require("express").Router();
-const auth = require("../../middlewares/auth");
-const _appointmentService = require("../../services/AppointmentService");
-const _smsService = require("../../services/SmsService");
-const _userService = require("../../services/UserService");
+const auth = require("../middlewares/auth");
+const _appointmentService = require("../services/AppointmentService");
+const _smsService = require("../services/SmsService");
+const _userService = require("../services/UserService");
 
 router.get('/', auth.isUser, async (req, res) => {
     const appointments = await _appointmentService.getAllAppointments();
