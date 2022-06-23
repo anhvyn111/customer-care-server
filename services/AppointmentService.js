@@ -1,0 +1,158 @@
+const AppointmentType = require("../mongoose-entities/AppointmentType");
+const Appointment = require("../mongoose-entities/Appointment");
+const mongoose = require("mongoose");
+
+const getAppointmentTypeById = async (id) => {
+    var appointmentType = AppointmentType.findById(id);
+    return appointmentType;
+}
+
+const getAllAppointmentType = async () => {
+    var appointmentTypes = AppointmentType.find();
+    return appointmentTypes;
+}
+
+const getAppointmentById = async (appointmentId) => {
+    console.log(appointmentId);
+    const appointment =  await Appointment.aggregate([
+        {
+          $lookup: {
+            from: "appointmenttypes",
+            localField: "appointmentTypeId",
+            foreignField: "_id",
+            as: "appointmentType",
+          }
+        },
+        { $unwind: "$appointmentType" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "customerId",
+              foreignField: "_id",
+              as: "customer",
+            },
+        },
+        { $unwind: "$customer" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "staffId",
+              foreignField: "_id",
+              as: "staff",
+            },
+            
+        },
+        { $unwind: "$staff" },
+        {   
+            $project:{
+                _id : 1,
+                name : 1,
+                userName : 1,
+                appointmentType : "$appointmentType",
+                customer : "$customer",
+                staff: "$staff",
+                updatedAt: 1
+            } 
+        },
+        { $match: { _id: mongoose.Types.ObjectId(appointmentId) } }
+    ]);
+
+    console.log(appointment);
+    return appointment[0];
+}
+
+const getAllAppointments = async () => {
+    var appointments = await Appointment.aggregate([
+        { $sort: { createdAt: -1 } },
+        {
+          $lookup: {
+            from: "appointmenttypes",
+            localField: "appointmentTypeId",
+            foreignField: "_id",
+            as: "appointmentType",
+          }
+        },
+        { $unwind: "$appointmentType" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "customerId",
+              foreignField: "_id",
+              as: "customer",
+            },
+        },
+        { $unwind: "$customer" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "staffId",
+              foreignField: "_id",
+              as: "staff",
+            },
+            
+        },
+        { $unwind: "$staff" },
+        {   
+            $project:{
+                _id : 1,
+                name : 1,
+                userName : 1,
+                appointmentType : "$appointmentType",
+                customer : "$customer",
+                staff: "$staff",
+                updatedAt: 1
+            } 
+        },
+    ]);
+    return appointments;
+}
+
+createAppointment = async (appointment) => {
+    var newAppointment = new Appointment({
+        customerId: appointment.customerId,
+        staffId: appointment.staffId,
+        appointmentTypeId: appointment.appointmentTypeId,
+        date: appointment.date
+    });
+    var result = await newAppointment.save();
+    if(result)
+        return await getById(result._id)
+    return null;
+}
+
+createAppointmentType = async (typeName) => {
+    var newAppointmentType = new AppointmentType({
+        name: typeName
+    });
+    await newAppointmentType.save();
+    return newAppointmentType;
+}
+
+updateAppointment = async (appointment) => {
+    return await appointment.save();
+}
+
+updateAppointmentType = async (appointmentType) => {
+    return await appointmentType.save();
+}
+
+deleteAppointment = async (appointmentId) => {
+    return await Appointment.findByIdAndDelete(appointmentId);
+}
+
+deleteAppointmentType = async (appointmentTypeId) => {
+    return await AppointmentType.findByIdAndDelete(appointmentTypeId);
+}
+
+module.exports = {
+    getAppointmentTypeById,
+    getAllAppointmentType,
+    getAllAppointments,
+    getAppointmentById,
+    createAppointmentType,
+    createAppointment,
+    updateAppointment,
+    updateAppointmentType,
+    deleteAppointment,
+    deleteAppointmentType
+}
