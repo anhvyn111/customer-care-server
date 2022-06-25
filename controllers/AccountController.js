@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-const userService = require("../../services/UserService.js");
-const _smsService = require("../../services/SmsService");
-const userRole = require("../../models/Role.js");
-const auth = require("../../middlewares/auth");
+const userService = require("../services/UserService.js");
+const _smsService = require("../services/SmsService");
+const userRole = require("../models/Role.js");
+const auth = require("../middlewares/auth");
 dotenv.config();
 
 router.post('/login', async (req, res) => {

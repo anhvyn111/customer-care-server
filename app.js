@@ -3,12 +3,12 @@ const helmet = require("helmet");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 //controllers 
-const accountController = require("./admin/controllers/AccountController");
-const appointmentController = require("./admin/controllers/AppointmentController");
-const customerController = require("./admin/controllers/CustomerController");
+const accountController = require("./controllers/AccountController");
+const appointmentController = require("./controllers/AppointmentController");
+const customerController = require("./controllers/CustomerController");
 
 const app = express();
 
