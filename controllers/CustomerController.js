@@ -2,8 +2,8 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-const userService = require("../../services/UserService.js");
-const userRole = require("../../models/Role.js");
+const userService = require("../services/UserService.js");
+const userRole = require("../models/Role.js");
 dotenv.config();
 
 router.post('/login', async (req, res) => {
