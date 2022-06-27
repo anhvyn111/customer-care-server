@@ -7,12 +7,12 @@ const userRole = require("../models/Role.js");
 dotenv.config();
 
 router.post('/login', async (req, res) => {
-    var loginResult = userService.authenticate(req.body.username, req.body.password);
+    var loginResult = await userService.authenticate(req.body.username, req.body.password, [userRole.Customer]);
     if(loginResult == -1) 
         return res.status(200).json({status: 404, message: "Username or password is invalid."});
     if(loginResult == 0) 
         return res.status(200).json({status: 403, message: "You do not have permission."});
-    var token = jwt.sign(req.body.username, process.env.ACCESS_TOKEN_SECRET);
+    var token = jwt.sign({ username: req.body.username, role: userRole.Customer }, process.env.ACCESS_TOKEN_SECRET);
     return res.status(200).json({status: 200, token});
 })
 
@@ -25,8 +25,8 @@ router.post('/register', async (req, res) => {
         password: req.body.password,
         role: userRole.Customer
     }
-    var isExisted = await userService.getByUserName(req.body.username);
-    if (isExisted)  return res.status(400).json({status: 400, message: "User is existed"});
+    var existingAccount = await userService.getByUserName(req.body.username);
+    if (existingAccount != null)  return res.status(400).json({status: 400, message: "User is existed"});
     var result  = await userService.create(newUser);
     if(!result) 
         return res.status(400).json(result);

@@ -8,13 +8,17 @@ const auth = require("../middlewares/auth");
 dotenv.config();
 
 router.post('/login', async (req, res) => {
-    var loginResult = userService.authenticate(req.body.username, req.body.password);
+    var loginResult = await userService.authenticate(req.body.username, req.body.password, [userRole.Staff, userRole.Admin]);
+    console.log(loginResult);
     if(loginResult == -1) 
-        return res.status(200).json({status: 404, message: "Username or password is invalid."});
-    if(loginResult == 0) 
-        return res.status(200).json({status: 403, message: "You do not have permission."});
-    var token = jwt.sign(req.body.username, process.env.ACCESS_TOKEN_SECRET);
-    return res.status(200).json({status: 200, token});
+        return res.status(404).json("Username or password is invalid.");
+    else if(loginResult == 0) 
+        return res.status(403).json("You do not have permission.");
+    else
+        var user = await userService.getByUserName(req.body.username);
+        var role = user.role;
+        var token = jwt.sign({username: req.body.username, role: role}, process.env.ACCESS_TOKEN_SECRET);
+        return res.status(200).json({status: 200, token});
 })
 
 router.post('/register', auth.isAdmin, async (req, res) => {

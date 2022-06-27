@@ -1,21 +1,21 @@
 const Account = require("../mongoose-entities/Account");
 const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
-const { isStaff } = require("../middlewares/auth");
 const userRole = require("../models/Role");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
-authenticate = async (username, password, role) => {
-    const existingAccount = await Account.findOne({ username: username }).exec();        
-    if (!existingAccount) {
+authenticate = async (username, password, roles) => {
+    const existingAccount = await Account.findOne({ username: username }).exec();   
+    console.log(existingAccount);     
+    if (existingAccount == null) {
         return -1;
     } 
     const validPassword = await bcrypt.compare(password, existingAccount.password);
     if (!validPassword) {
         return -1;
     }   
-    if(existingAccount.role != role) return 0;
-    return 1;
+    if (roles.includes(existingAccount.role))  return 1;
+    return 0;
 }
 
 create = async (newUser) => {
@@ -126,7 +126,7 @@ getById = async (id) => {
 }
 
 getByUserName = async (userName) => {
-    var account = await Account.findOne({ 'username': userName});
+    var account = await Account.findOne({ username: userName});
     return account;
 }
 
