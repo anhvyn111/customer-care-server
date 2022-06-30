@@ -4,20 +4,23 @@ const referrenceValidator = require("mongoose-referrence-validator");
 const UserSchema = new mongoose.Schema(
   {
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     phoneNumber: {
       type: String,
-      required: true
+      required: true,
     },
     birth: {
-        type: Date
+      type: Date,
+    },
+    email: {
+      type: String,
     },
     accountId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Account'
-    }
+      ref: "Account",
+    },
   },
   { timestamps: true }
 );

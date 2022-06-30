@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const PORT = process.env.PORT || 5000;
 
-//controllers 
+//controllers
 const accountController = require("./controllers/AccountController");
 const appointmentController = require("./controllers/AppointmentController");
 const customerController = require("./controllers/CustomerController");
@@ -17,18 +17,23 @@ const app = express();
 dotenv.config();
 
 mongoose.connect(
-    process.env.MONGO_URL,
-    { useNewUrlParser: true, useUnifiedTopology: true },
-    (err, client) => {
-      if(err)
-        console.log(err);
-      else  
-      console.log("Connected to MongoDB");
-
-    }
-  );
+  process.env.MONGO_URL,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  (err, client) => {
+    if (err) console.log(err);
+    else console.log("Connected to MongoDB");
+  }
+);
 
 //middleware
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
