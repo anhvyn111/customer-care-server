@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../mongoose-entities/User");
 const Account = require("../mongoose-entities/Account");
 const UserRole = require("../models/Role");
+const _userService = require("../services/UserService.js");
+
 const isUser = (req, res, next) => {
     const authorizationHeaders = req.headers['authorization'];
     const token = authorizationHeaders.split(' ')[1];
@@ -32,12 +34,15 @@ const isStaff = (req, res, next) => {
         }
         else 
         {
-            let account = await Account.findOne({ username: data });
-            if (account.Role != UserRole.Admin){
+            var account = await _userService.getByUserName(data.username);
+            console.log(data);
+            if (account.role == UserRole.Admin || account.role == UserRole.Staff){
+                req.user = User.findOne({ accountId: account._id });
+                next();
+            }
+            else{
                 return res.status(403);
             }
-            req.user = User.findOne({ accountId: account._id });
-            next();
         }   
     });
 }
@@ -53,8 +58,8 @@ const isAdmin = (req, res, next) => {
         }
         else 
         {
-            let account = await Account.findOne({ username: data });
-            if (account.Role != UserRole.Admin){
+            var account = await _userService.getByUserName(data.username);            
+            if (account.role != UserRole.Admin){
                 return res.status(403);
             }
             req.user = User.findOne({ accountId: account._id });

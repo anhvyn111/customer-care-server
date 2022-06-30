@@ -121,7 +121,8 @@ getStaffById = async (staffId) => {
 }
 
 getById = async (id) => {
-    var user = await User.findbyId(id);
+    var user = await User.findById(id);
+    console.log("User", user);
     return user;
 }
 

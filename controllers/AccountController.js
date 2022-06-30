@@ -16,9 +16,8 @@ router.post('/login', async (req, res) => {
         return res.status(403).json("You do not have permission.");
     else
         var user = await userService.getByUserName(req.body.username);
-        var role = user.role;
-        var token = jwt.sign({username: req.body.username, role: role}, process.env.ACCESS_TOKEN_SECRET);
-        return res.status(200).json({status: 200, token});
+        var token = jwt.sign({username: req.body.username}, process.env.ACCESS_TOKEN_SECRET);
+        return res.status(200).json({user: { username: user.username, role: user.role }, token});
 })
 
 router.post('/register', auth.isAdmin, async (req, res) => {
