@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 5000;
 const accountController = require("./controllers/AccountController");
 const appointmentController = require("./controllers/AppointmentController");
 const customerController = require("./controllers/CustomerController");
+const voucherController = require("./controllers/VoucherController");
+const customerVoucherController = require("./controllers/CustomerVoucherController");
 
 const app = express();
 
@@ -34,6 +36,8 @@ app.use(morgan("common"));
 app.use("/api/user", accountController);
 app.use("/api/appointment", appointmentController);
 app.use("/api/customer", customerController);
+app.use("/api/voucher", voucherController);
+app.use("/api/customervoucher", customerVoucherController);
 
 app.listen(PORT, () => {
   console.log("server is running 5000");

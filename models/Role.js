@@ -1,7 +1,7 @@
 userRole = {
     Admin : 'admin',
     Staff : 'staff',
-    Customer: 'Customer'
+    Customer: 'customer'
 }
 
 module.exports = userRole;

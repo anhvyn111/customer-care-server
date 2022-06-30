@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const userService = require("../services/UserService.js");
 const userRole = require("../models/Role.js");
+const auth = require("../middlewares/auth.js");
 dotenv.config();
 
 router.post('/login', async (req, res) => {
@@ -12,8 +13,9 @@ router.post('/login', async (req, res) => {
         return res.status(200).json({status: 404, message: "Username or password is invalid."});
     if(loginResult == 0) 
         return res.status(200).json({status: 403, message: "You do not have permission."});
-    var token = jwt.sign({ username: req.body.username, role: userRole.Customer }, process.env.ACCESS_TOKEN_SECRET);
-    return res.status(200).json({status: 200, token});
+    var user = await userService.getByUserName(req.body.username);
+    var token = jwt.sign({username: req.body.username}, process.env.ACCESS_TOKEN_SECRET);
+    return res.status(200).json({user: { username: user.username, role: user.role }, token});
 })
 
 router.post('/register', async (req, res) => {
@@ -33,7 +35,7 @@ router.post('/register', async (req, res) => {
     res.status(200).json(result);
 })
 
-router.get('/', async (req, res) => {
+router.get('/', auth.isStaff, async (req, res) => {
     var customers = await userService.getAllCustomers();
     return res.status(200).json(customers);
 })
