@@ -11,7 +11,7 @@ const appointmentController = require("./controllers/AppointmentController");
 const customerController = require("./controllers/CustomerController");
 const voucherController = require("./controllers/VoucherController");
 const customerVoucherController = require("./controllers/CustomerVoucherController");
-
+const messageController = require("./controllers/MessageController");
 const app = express();
 
 dotenv.config();
@@ -43,6 +43,7 @@ app.use("/api/appointment", appointmentController);
 app.use("/api/customer", customerController);
 app.use("/api/voucher", voucherController);
 app.use("/api/customervoucher", customerVoucherController);
+app.use("/api/message", messageController);
 
 app.listen(PORT, () => {
   console.log("server is running 5000");

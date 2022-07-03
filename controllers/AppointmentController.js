@@ -16,7 +16,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
     return res.status(200).json(appointment);
 });
 
-router.post('/:id', auth.isStaff, async (req, res) => {
+router.post('/', auth.isUser, async (req, res) => {
     try 
     {
         const appointment = {
@@ -29,7 +29,7 @@ router.post('/:id', auth.isStaff, async (req, res) => {
         const staff = await _userService.getById(staffId);
         const customer = await _userService.getById(customerId);
         if(!appointmentType || !staff || !customer)
-            return res.status(400);
+            return res.status(400).json("Something is wrong.");
         const result = await _appointmentService.createAppointment(appointment);
         console.log(result);
     
