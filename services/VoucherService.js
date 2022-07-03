@@ -1,6 +1,7 @@
 const Voucher = require("../mongoose-entities/Voucher");
 const CustomerVoucher = require("../mongoose-entities/CustomerVoucher");
 const mongoose = require("mongoose");
+
 const createVoucher = async (voucher) => {
     var newVoucher = new Voucher({
         voucherName: voucher.voucherName,

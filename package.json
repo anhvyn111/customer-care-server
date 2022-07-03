@@ -10,6 +10,7 @@
     "mongoose-referrence-validator": "^1.0.0",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.16",
+    "socket.io": "^4.5.1",
     "twilio": "^3.77.3"
   },
   "name": "server-api",
