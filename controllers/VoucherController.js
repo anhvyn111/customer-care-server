@@ -7,7 +7,6 @@ const _voucherService = require("../services/VoucherService");
 router.get("/", auth.isStaff || auth.isAdmin, async (req, res) => {
   try {
     var vouchers = await _voucherService.getAllVouchers();
-    console.log(vouchers);
     return res.status(200).json(vouchers);
   } catch (err) {
     return res.status(500).json(err);
