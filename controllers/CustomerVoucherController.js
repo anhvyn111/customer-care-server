@@ -65,11 +65,11 @@ router.post('/', auth.isStaff, async (req, res) => {
 
 
 
-router.put('/', auth.isStaff, async (req, res) => {
+router.put('/:id', auth.isStaff, async (req, res) => {
 
 })
 
-router.delete('/', auth.isStaff, async (req, res) => {
+router.delete('/:id', auth.isStaff, async (req, res) => {
     var id = req.params.id;
     var customerVoucher = await _voucherService.getCustomerVoucherById(id);
     if (customerVoucher == null){

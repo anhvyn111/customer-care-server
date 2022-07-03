@@ -40,4 +40,14 @@ router.get('/', auth.isStaff, async (req, res) => {
     return res.status(200).json(customers);
 })
 
+router.get('/:id', auth.isUser, async (req, res) => {
+    var id = req.params.id;
+    console.log(req.role);
+    if(req.role == userRole.Customer &&  id != req.user._id) {
+        return res.status(403).json("You do not have permission.");
+    }
+    var customer = await userService.getById(id);
+    return res.status(200).json(customer);
+})
+
 module.exports = router;
