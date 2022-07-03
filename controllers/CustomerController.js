@@ -28,7 +28,11 @@ router.post("/login", async (req, res) => {
   );
   return res
     .status(200)
-    .json({ user: { username: user.username, role: user.role }, token });
+    .json({
+      status: 200,
+      user: { username: user.username, role: user.role },
+      token,
+    });
 });
 
 router.post("/register", async (req, res) => {
