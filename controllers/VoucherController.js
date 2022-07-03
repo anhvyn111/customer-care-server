@@ -7,13 +7,14 @@ const _voucherService = require("../services/VoucherService");
 router.get("/", auth.isStaff || auth.isAdmin, async (req, res) => {
   try {
     var vouchers = await _voucherService.getAllVouchers();
+    console.log(vouchers);
     return res.status(200).json(vouchers);
   } catch (err) {
     return res.status(500).json(err);
   }
 });
 
-router.get("/:id", auth.isStaff, async (req, res) => {
+router.get("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
   var id = req.params.id;
   var voucher = await _voucherService.getVoucherById(id);
   if (!voucher) {
@@ -22,7 +23,7 @@ router.get("/:id", auth.isStaff, async (req, res) => {
   return res.status(200).json(voucher);
 });
 
-router.post("/", auth.isStaff, async (req, res) => {
+router.post("/", auth.isStaff || auth.isAdmin, async (req, res) => {
   try {
     var voucherName = req.body.voucherName;
     var voucherCode = req.body.voucherCode;
@@ -47,9 +48,9 @@ router.post("/", auth.isStaff, async (req, res) => {
   }
 });
 
-router.put("/:id", auth.isStaff, async (req, res) => {});
+router.put("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {});
 
-router.delete("/:id", auth.isStaff, async (req, res) => {
+router.delete("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
   var id = req.params.id;
 });
 
