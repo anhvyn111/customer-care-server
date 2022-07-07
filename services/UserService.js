@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
 const userRole = require("../models/Role");
 const mongoose = require("mongoose");
-
+const ObjectId = require("mongodb").ObjectID;
 authenticate = async (username, password, roles) => {
   const existingAccount = await Account.findOne({ username: username }).exec();
   console.log(existingAccount);
@@ -122,7 +122,6 @@ getStaffById = async (staffId) => {};
 
 getById = async (id) => {
   var user = await User.findById(id);
-  console.log("User", user);
   return user;
 };
 
@@ -138,11 +137,21 @@ deleteUser = async (id) => {
   await Account.findByIdAndDelete(user.accountId);
   return true;
 };
+
+getByAccountId = async (accountId) => {
+  try {
+    var user = await User.findOne({ accountId: ObjectId(accountId) });
+    return user;
+  } catch (e) {
+    console.log(e);
+  }
+};
 module.exports = {
   authenticate,
   create,
   getById,
   getByUserName,
   deleteUser,
+  getByAccountId,
   getAllCustomers,
 };

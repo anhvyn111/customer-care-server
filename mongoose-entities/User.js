@@ -21,10 +21,6 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Account",
     },
-    rank: {
-      type: String,
-      enum: ["none", "silver", "gold", "platinum"],
-    },
   },
   { timestamps: true }
 );

@@ -6,6 +6,7 @@ const userService = require("../services/UserService.js");
 const userRole = require("../models/Role.js");
 const customerRank = require("../models/Rank.js");
 const auth = require("../middlewares/auth.js");
+
 dotenv.config();
 
 router.post("/login", async (req, res) => {
@@ -58,7 +59,7 @@ router.get("/", auth.isStaff || auth.isAdmin, async (req, res) => {
   return res.status(200).json(customers);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
   var id = req.params.id;
   if (req.role == userRole.Customer && id != req.user._id) {
     return res.status(403).json("You do not have permission.");
@@ -66,5 +67,9 @@ router.get("/:id", async (req, res) => {
   var customer = await userService.getById(id);
   return res.status(200).json(customer);
 });
-
+router.get("/accountId/:id", auth.isUser, async (req, res) => {
+  var id = req.params.id;
+  var customer = await userService.getByAccountId(id);
+  return res.status(200).json(customer);
+});
 module.exports = router;
