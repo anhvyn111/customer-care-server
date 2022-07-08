@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
 const userRole = require("../models/Role");
 const mongoose = require("mongoose");
+const { findById } = require("../mongoose-entities/Account");
 
 authenticate = async (username, password, roles) => {
     const existingAccount = await Account.findOne({ username: username }).exec();   
@@ -44,7 +45,7 @@ create = async (newUser) => {
     return true;
 }  
 
-getAllCustomers = async () => {
+getAllUsers = async (userRole) => {
     var customers = await User.aggregate([
         { $sort: { createdAt: -1 } },
         {
@@ -69,14 +70,29 @@ getAllCustomers = async () => {
         },
         { 
             $match: {
-                role: userRole.Customer
+                role: userRole
             }
         }        
     ]);
     return customers;
 }
+
+getCustomersHasBirthDay = async () => {
+    var birthCustomers = [];
+    var now = new Date();
+    var customers = await getAllUsers(userRole.Customer);
+
+    customers.forEach(c => {
+        console.log(month, day);
+        if ( now.getDate() == day && now.getMonth() == month){
+            birthCustomers.push(c);
+        }
+    });
+    return birthCustomers;
+}
+
 getUserById = async (id, role) => {
-    var customer = await User.aggregate([
+    var user = await User.aggregate([
         { $sort: { createdAt: -1 } },
         {
           $lookup: {
@@ -102,22 +118,13 @@ getUserById = async (id, role) => {
         { 
             $match: {
                 $and: [
-                    { role: userRole.Customer },
-                    { _id: mongoose.Types.ObjectId(customerId) }
+                    { role: role },
+                    { _id: mongoose.Types.ObjectId(id) }
                 ]
             }
         }        
     ]);
-    return customer[0];
-}
-
-getAllUser = async () => {
-    
-    return staffs
-}
-
-getStaffById = async (staffId) => {
-
+    return user[0];
 }
 
 getById = async (id) => {
@@ -131,19 +138,31 @@ getByUserName = async (userName) => {
     return account;
 }
 
+updateUser = async (user) => {
+    var result = await User.findByIdAndUpdate(user._id, 
+        { 
+            name: user.name,
+            birth: user.birth,
+            gender: user.gender
+        });
+    return result;
+}
+
 deleteUser = async (id) => {
     var user = await User.findById(id);
-    if (!user) return false;
-    await User.deleteOne(user);
+    await User.findByIdAndDelete(id);
     await Account.findByIdAndDelete(user.accountId);
-    return true;
 }
+
 module.exports = {
     authenticate, 
     create,
     getById,
+    getUserById,
     getByUserName,
     deleteUser,
-    getAllCustomers
+    getAllUsers,
+    getCustomersHasBirthDay,
+    updateUser
 }
  

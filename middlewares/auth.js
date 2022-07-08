@@ -35,9 +35,10 @@ const isStaff = (req, res, next) => {
         else 
         {
             var account = await _userService.getByUserName(data.username);
-            console.log(data);
+            console.log(account);
             if (account.role == UserRole.Admin || account.role == UserRole.Staff){
                 req.user = User.findOne({ accountId: account._id });
+                req.role = account.role;
                 next();
             }
             else{
@@ -63,6 +64,7 @@ const isAdmin = (req, res, next) => {
                 return res.status(403).json("You do not have permission.");
             }
             req.user = User.findOne({ accountId: account._id });
+            req.role = account.role;
             next();
         }   
     });

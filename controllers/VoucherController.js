@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const Voucher = require("../mongoose-entities/Voucher");
+const userRole = require("../models/Role");
 const CustomerVoucher = require("../mongoose-entities/CustomerVoucher");
 const _voucherService = require("../services/VoucherService");
 
@@ -50,7 +51,7 @@ router.post('/', auth.isStaff, async (req, res) => {
 
 
 router.put('/:id', auth.isStaff, async (req, res) => {
-
+   
 })
 
 router.delete('/:id', auth.isStaff, async (req, res) => {
@@ -58,4 +59,4 @@ router.delete('/:id', auth.isStaff, async (req, res) => {
     
 })
 
-module.exports = router;
+module.exports = router; 

@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const userService = require("../services/UserService.js");
@@ -35,19 +34,61 @@ router.post('/register', async (req, res) => {
     res.status(200).json(result);
 })
 
-router.get('/', auth.isStaff, async (req, res) => {
-    var customers = await userService.getAllCustomers();
+router.get('/', auth.isAdmin, async (req, res) => {
+    var customers = await userService.getAllUsers(userRole.Customer);
     return res.status(200).json(customers);
 })
 
-router.get('/:id', auth.isUser, async (req, res) => {
+router.get('/:id', auth.isAdmin, async (req, res) => {
     var id = req.params.id;
     console.log(req.role);
     if(req.role == userRole.Customer &&  id != req.user._id) {
         return res.status(403).json("You do not have permission.");
     }
     var customer = await userService.getById(id);
+    if (customer == null){
+        return res.status(404).json("Customer not found");
+    }
     return res.status(200).json(customer);
+})
+
+router.post('/birthday', auth.isStaff, async (req, res) => {
+    var customers = await userService.getCustomersHasBirthDay();
+    return res.status(200).json(customers);
+})
+
+router.put('/:id', auth.isUser, async (req, res) => {
+    var id = req.params.id;
+    var customer = await userService.getUserById(id, userRole.Customer);
+
+    if(req.role == userRole.Customer && req.user._id != customer._id){
+        res.status(403).json(`You do not have permission.`);
+    }
+    if (customer == null){
+        res.status(404).json(`Not found the customer with id is ${id}`);
+    }
+
+    var updatedCustomer = {
+        _id: id,
+        name: req.body.name,
+        phonerNumber: req.body.phonerNumber,
+        birth: req.body.birth,
+        gender: req.body.gender
+    }
+
+    var result = await userService.updateUser(updatedCustomer);
+    return res.status(200).json(result);
+})
+
+router.delete('/:id', auth.isAdmin, async (req, res) => {
+    var id = req.params.id;
+    var customer = await userService.getUserById(id, userRole.Customer);
+    console.log(customer);
+    if (customer == null){
+        return res.status(404).json("Customer not found");
+    }
+    await userService.deleteUser(id);
+    return res.status(200).json(true);
 })
 
 module.exports = router;
