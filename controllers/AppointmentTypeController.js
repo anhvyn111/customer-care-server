@@ -18,25 +18,9 @@ router.get('/:id', auth.isUser, async (req, res) => {
 router.post('/', auth.isUser, async (req, res) => {
     try 
     {
-        const appointment = {
-            appointmentTypeId: req.body.appointmentTypeId,
-            staffId: req.body.staffId,
-            customerId: req.body.customerId,
-            date: new Date(req.body.date)
-        }   
-        const appointmentType = await _appointmentService.getAppointmentTypeById(appointment.appointmentTypeId);
-        const staff = await _userService.getById(staffId);
-        const customer = await _userService.getById(customerId);
-        if(!appointmentType || !staff || !customer)
-            return res.status(400).json("Something is wrong.");
-        const result = await _appointmentService.createAppointment(appointment);
-        console.log(result);
-    
-        // if(result) {
-        //     var message = `Xin chào ${result.customer.name}\nNguyễn Anh Vy muốn gửi lời yêu thương đến bạn "I luv you <3"`;
-        //     console.log(message);
-        //    //await _smsService.sendSms(result.customer.phoneNumber, message)
-        // }
+        const typeName = req.body.name;
+        if (typeName.trim().length == 0) return res.status(400);
+        const result = await _appointmentService.createAppointmentType(typeName);
         return res.status(200).json(result);
     }
     catch(err) 
@@ -48,20 +32,13 @@ router.post('/', auth.isUser, async (req, res) => {
 router.put('/:id', auth.isStaff, async (req, res) => {
     try 
     {
-        const appointment = {
-            appointmentTypeId: req.body.appointmentTypeId,
-            staffId: req.body.staffId,
-            customerId: req.body.customerId,
-            date: new Date(req.body.date)
-        }   
-        const appointmentType = await _appointmentService.getAppointmentTypeById(appointment.appointmentTypeId);
-        const staff = await _userService.getById(staffId);
-        const customer = await _userService.getById(customerId);
-        if(!appointmentType || !staff || !customer)
-            return res.status(400);
-        const result = await _appointmentService.createAppointment(appointment);
-        console.log(result);
-    
+        var id = req.params.id;
+        var name = req.body.name;
+        const appointmentType = await _appointmentService.getAppointmentTypeById(id);
+        if (appointmentType == null)
+            return res.status(404).json("Appointment type not found");
+        appointmentType.name = name;
+        var result = await _appointmentService.updateAppointmentType(appointmentType);    
         // if(result) {
         //     var message = `Xin chào ${result.customer.name}\nNguyễn Anh Vy muốn gửi lời yêu thương đến bạn "I luv you <3"`;
         //     console.log(message);
@@ -75,11 +52,36 @@ router.put('/:id', auth.isStaff, async (req, res) => {
     }
 });
 
-router.post('/type', auth.isAdmin, async (req, res) => {
-    const typeName = req.body.name;
-    if (typeName.trim().length == 0) return res.status(400);
-    const result = await _appointmentService.createAppointmentType(typeName);
-    return res.status(200).json(result);
+router.delete('/:id', auth.isStaff, async (req, res) => {
+    try 
+    {
+        var id = req.params.id;
+        const appointmentType = await _appointmentService.getAppointmentTypeById(id);
+        console.log(appointmentType);
+
+        if (appointmentType == null)
+            return res.status(404).json("Appointment type not found");
+
+        var appointments = await _appointmentService.getAppointmentsByTypeId(id);  
+        console.log(appointments[0].date.getTime());
+        appointments = appointments.filter(a => a.date.getTime() >= new Date().getTime());
+    
+        if ( appointments.length > 0){
+            return res.status(400).json("Can not delete because we have appointments which are using this appointment type.");
+        }
+        // if(result) {
+        //     var message = `Xin chào ${result.customer.name}\nNguyễn Anh Vy muốn gửi lời yêu thương đến bạn "I luv you <3"`;
+        //     console.log(message);
+        //    //await _smsService.sendSms(result.customer.phoneNumber, message)
+        // }
+        await _appointmentService.deleteAppointmentType(id);
+        await _appointmentService.deleteAppointmentByTypeId(id);
+        return res.status(200).json(true);
+    }
+    catch(err) 
+    {
+        res.status(400).json(err);
+    }
 });
 
 module.exports = router;

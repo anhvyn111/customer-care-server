@@ -4,6 +4,7 @@ const referrenceValidator = require("mongoose-referrence-validator");
 const AppointmentSchema = new mongoose.Schema({
         customerId: {
             type: mongoose.Schema.Types.ObjectId,
+            required: true,
             ref: 'User'
         },
         staffId: {
@@ -12,6 +13,7 @@ const AppointmentSchema = new mongoose.Schema({
         },
         appointmentTypeId: {
             type: mongoose.Schema.Types.ObjectId,
+            required: true,
             ref: 'AppointmentType'  
         },
         date: {
