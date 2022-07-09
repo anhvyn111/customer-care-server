@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
 const userRole = require("../models/Role");
 const mongoose = require("mongoose");
-const ObjectId = require("mongodb").ObjectID;
+
 authenticate = async (username, password, roles) => {
   const existingAccount = await Account.findOne({ username: username }).exec();
   console.log(existingAccount);
@@ -47,78 +47,87 @@ create = async (newUser) => {
   return true;
 };
 
-getAllCustomers = async () => {
-  var customers = await User.aggregate([
-    { $sort: { createdAt: -1 } },
-    {
-      $lookup: {
-        from: "accounts",
-        localField: "accountId",
-        foreignField: "_id",
-        as: "account",
-      },
-    },
-    { $unwind: "$account" },
-    {
-      $project: {
-        name: 1,
-        phoneNumber: 1,
-        birth: 1,
-        username: "$account.username",
-        createdAt: 1,
-        updatedAt: 1,
-        role: "$account.role",
-      },
-    },
-    {
-      $match: {
-        role: userRole.Customer,
-      },
-    },
-  ]);
-  return customers;
-};
+getAllUsers = async (userRole) => {
+    var customers = await User.aggregate([
+        { $sort: { createdAt: -1 } },
+        {
+          $lookup: {
+            from: "accounts",
+            localField: "accountId",
+            foreignField: "_id",
+            as: "account",
+          }
+        },
+        { $unwind: "$account" },
+        {
+            $project: {
+                name: 1,
+                phoneNumber: 1,
+                birth: 1,
+                username: "$account.username",
+                createdAt: 1,
+                updatedAt: 1,
+                role : "$account.role"
+            }
+        },
+        { 
+            $match: {
+                role: userRole
+            }
+        }        
+    ]);
+    return customers;
+}
+
+getCustomersHasBirthDay = async () => {
+    var birthCustomers = [];
+    var now = new Date();
+    var customers = await getAllUsers(userRole.Customer);
+
+    customers.forEach(c => {
+        console.log(month, day);
+        if ( now.getDate() == day && now.getMonth() == month){
+            birthCustomers.push(c);
+        }
+    });
+    return birthCustomers;
+}
+
 getUserById = async (id, role) => {
-  var customer = await User.aggregate([
-    { $sort: { createdAt: -1 } },
-    {
-      $lookup: {
-        from: "accounts",
-        localField: "accountId",
-        foreignField: "_id",
-        as: "account",
-      },
-    },
-    { $unwind: "$account" },
-    {
-      $project: {
-        _id: 1,
-        name: 1,
-        phoneNumber: 1,
-        birth: 1,
-        username: "$account.username",
-        createdAt: 1,
-        updatedAt: 1,
-        role: "$account.role",
-      },
-    },
-    {
-      $match: {
-        $and: [
-          { role: userRole.Customer },
-          { _id: mongoose.Types.ObjectId(customerId) },
-        ],
-      },
-    },
-  ]);
-  return customer[0];
-};
-
-getAllUser = async () => {
-  return staffs;
-};
-
-getStaffById = async (staffId) => {};
+    var user = await User.aggregate([
+        { $sort: { createdAt: -1 } },
+        {
+          $lookup: {
+            from: "accounts",
+            localField: "accountId",
+            foreignField: "_id",
+            as: "account",
+          }
+        },
+        { $unwind: "$account" },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                phoneNumber: 1,
+                birth: 1,
+                username: "$account.username",
+                createdAt: 1,
+                updatedAt: 1,
+                role : "$account.role"
+            }
+        },
+        { 
+            $match: {
+                $and: [
+                    { role: role },
+                    { _id: mongoose.Types.ObjectId(id) }
+                ]
+            }
+        }        
+    ]);
+    return user[0];
+}
 
 getById = async (id) => {
   var user = await User.findById(id);
@@ -130,28 +139,30 @@ getByUserName = async (userName) => {
   return account;
 };
 
-deleteUser = async (id) => {
-  var user = await User.findById(id);
-  if (!user) return false;
-  await User.deleteOne(user);
-  await Account.findByIdAndDelete(user.accountId);
-  return true;
-};
+updateUser = async (user) => {
+    var result = await User.findByIdAndUpdate(user._id, 
+        { 
+            name: user.name,
+            birth: user.birth,
+            gender: user.gender
+        });
+    return result;
+}
 
-getByAccountId = async (accountId) => {
-  try {
-    var user = await User.findOne({ accountId: ObjectId(accountId) });
-    return user;
-  } catch (e) {
-    console.log(e);
-  }
-};
+deleteUser = async (id) => {
+    var user = await User.findById(id);
+    await User.findByIdAndDelete(id);
+    await Account.findByIdAndDelete(user.accountId);
+}
+
 module.exports = {
-  authenticate,
-  create,
-  getById,
-  getByUserName,
-  deleteUser,
-  getByAccountId,
-  getAllCustomers,
-};
+    authenticate, 
+    create,
+    getById,
+    getUserById,
+    getByUserName,
+    deleteUser,
+    getAllUsers,
+    getCustomersHasBirthDay,
+    updateUser
+}

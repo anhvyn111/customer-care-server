@@ -7,7 +7,7 @@ const getAppointmentTypeById = async (id) => {
     return appointmentType;
 }
 
-const getAllAppointmentType = async () => {
+const getAllAppointmentTypes = async () => {
     var appointmentTypes = AppointmentType.find();
     return appointmentTypes;
 }
@@ -146,7 +146,7 @@ deleteAppointmentType = async (appointmentTypeId) => {
 
 module.exports = {
     getAppointmentTypeById,
-    getAllAppointmentType,
+    getAllAppointmentTypes,
     getAllAppointments,
     getAppointmentById,
     createAppointmentType,

@@ -27,6 +27,24 @@ router.get('/:id', auth.isStaff, async (req, res) => {
     }
 })
 
+router.get('/customer/:id', auth.isUser, async (req, res) => {
+    try{
+        var id = req.params.id;
+        console.log(id);
+        if (req.role == userRole.Customer && req.user._id != id){
+            return res.status(403).json("You do not have permission.");
+        }
+        var customerVoucher = await _voucherService.getCustomerVouchersByCustomerId(id);
+        if(customerVoucher == null){
+            return res.status(404).json("Customer not found");
+        }
+        return res.status(200).json(customerVoucher);
+    }
+    catch (err){
+        res.status(500).json(err);
+    }
+})
+
 router.post('/', auth.isStaff, async (req, res) => {
     try{
         var voucherId = req.body.voucherId;
@@ -78,5 +96,10 @@ router.delete('/:id', auth.isStaff, async (req, res) => {
     await _voucherService.deleteCustomerVoucher(id);
     return res.status(200);
 })
+
+router.post('/useVoucher', auth.isUser, async (req, res) => {
+    
+});
+
 
 module.exports = router;
