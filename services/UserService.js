@@ -3,47 +3,49 @@ const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
 const userRole = require("../models/Role");
 const mongoose = require("mongoose");
-const { findById } = require("../mongoose-entities/Account");
 
 authenticate = async (username, password, roles) => {
-    const existingAccount = await Account.findOne({ username: username }).exec();   
-    console.log(existingAccount);     
-    if (existingAccount == null) {
-        return -1;
-    } 
-    const validPassword = await bcrypt.compare(password, existingAccount.password);
-    if (!validPassword) {
-        return -1;
-    }   
-    if (roles.includes(existingAccount.role))  return 1;
-    return 0;
-}
+  const existingAccount = await Account.findOne({ username: username }).exec();
+  console.log(existingAccount);
+  if (existingAccount == null) {
+    return -1;
+  }
+  const validPassword = await bcrypt.compare(
+    password,
+    existingAccount.password
+  );
+  if (!validPassword) {
+    return -1;
+  }
+  if (roles.includes(existingAccount.role)) return 1;
+  return 0;
+};
 
 create = async (newUser) => {
-    var salt = await bcrypt.genSalt(10);
-    var hashedPassword = await bcrypt.hash(newUser.password, salt);
-    var newAccount = new Account({
-        username: newUser.username,
-        password: hashedPassword,
-        role: newUser.role
-    });
-    await newAccount.save(async (err, data) => {
-        if(err)
-            return false;    
-        else
-        {
-            var user = new User({
-                name: newUser.name,
-                phoneNumber: newUser.phoneNumber,
-                birth: new Date(newUser.birth),
-                accountId: data._id
-            });   
-            await user.save((err, data) => console.log(data));
-        }
-    });
-    
-    return true;
-}  
+  var salt = await bcrypt.genSalt(10);
+  var hashedPassword = await bcrypt.hash(newUser.password, salt);
+  var newAccount = new Account({
+    username: newUser.username,
+    password: hashedPassword,
+    role: newUser.role,
+  });
+  await newAccount.save(async (err, data) => {
+    if (err) return false;
+    else {
+      var user = new User({
+        name: newUser.name,
+        phoneNumber: newUser.phoneNumber,
+        birth: new Date(newUser.birth),
+        accountId: data._id,
+        email: newUser.email,
+        rank: newUser.rank,
+      });
+      await user.save((err, data) => console.log(data));
+    }
+  });
+
+  return true;
+};
 
 getAllUsers = async (userRole) => {
     var customers = await User.aggregate([
@@ -128,15 +130,14 @@ getUserById = async (id, role) => {
 }
 
 getById = async (id) => {
-    var user = await User.findById(id);
-    console.log("User", user);
-    return user;
-}
+  var user = await User.findById(id);
+  return user;
+};
 
 getByUserName = async (userName) => {
-    var account = await Account.findOne({ username: userName});
-    return account;
-}
+  var account = await Account.findOne({ username: userName });
+  return account;
+};
 
 updateUser = async (user) => {
     var result = await User.findByIdAndUpdate(user._id, 
@@ -165,4 +166,3 @@ module.exports = {
     getCustomersHasBirthDay,
     updateUser
 }
- 
