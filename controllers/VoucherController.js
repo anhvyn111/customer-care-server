@@ -51,7 +51,18 @@ router.post('/', auth.isStaff, async (req, res) => {
 
 
 router.put('/:id', auth.isStaff, async (req, res) => {
-   
+    var id = req.params.id;
+    if (req.role == userRole.Staff && req.user.id != id){
+        return res.status(403).json("You do not have permission");
+    }
+    var updateStaff = {
+        name: req.body.name,
+        phonerNumber: req.body.phonerNumber,
+        birth: req.body.birth,
+        gender: req.body.gender
+    }
+
+    var updateStaff = await userService
 })
 
 router.delete('/:id', auth.isStaff, async (req, res) => {

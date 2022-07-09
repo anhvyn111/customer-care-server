@@ -10,14 +10,14 @@ const { response } = require("express");
 dotenv.config();
 
 
-router.post('/add', auth.isAdmin, async (req, res) => {
+router.post('/', auth.isAdmin, async (req, res) => {
     var newStaff = {
         name: req.body.name,
         phoneNumber: req.body.phoneNumber,
         birth: req.body.birth,
-        username: req.body.phoneNumber,
+        username: req.body.username,
         password: req.body.password,
-        role: userRole.Customer
+        role: userRole.Staff
     }
     var existingAccount = await userService.getByUserName(req.body.username);
     if (existingAccount != null)  return res.status(400).json({status: 400, message: "Username is existing"});
@@ -38,7 +38,7 @@ router.get('/:id', auth.isAdmin, async (req, res) => {
     if(req.role == userRole.Staff &&  id != req.user._id) {
         return res.status(403).json("You do not have permission.");
     }
-    var staff = await userService.getById(id);
+    var staff = await userService.getUserById(id, userRole.Staff);
     return res.status(200).json(staff);
 })
 

@@ -3,12 +3,12 @@ const Appointment = require("../mongoose-entities/Appointment");
 const mongoose = require("mongoose");
 
 const getAppointmentTypeById = async (id) => {
-    var appointmentType = AppointmentType.findById(id);
+    var appointmentType = await AppointmentType.findById(id);
     return appointmentType;
 }
 
 const getAllAppointmentTypes = async () => {
-    var appointmentTypes = AppointmentType.find();
+    var appointmentTypes = await AppointmentType.find();
     return appointmentTypes;
 }
 
@@ -46,13 +46,11 @@ const getAppointmentById = async (appointmentId) => {
         {   
             $project:{
                 _id : 1,
-                name : 1,
-                userName : 1,
-                appointmentType : "$appointmentType",
+                appointmentName : "$appointmentType.name",
                 customer : "$customer",
                 staff: "$staff",
                 updatedAt: 1
-            } 
+            }
         },
         { $match: { _id: mongoose.Types.ObjectId(appointmentId) } }
     ]);
@@ -100,10 +98,12 @@ const getAllAppointments = async () => {
                 appointmentType : "$appointmentType",
                 customer : "$customer",
                 staff: "$staff",
+                date: 1,
                 updatedAt: 1
             } 
         },
     ]);
+     
     return appointments;
 }
 
@@ -144,6 +144,16 @@ deleteAppointmentType = async (appointmentTypeId) => {
     return await AppointmentType.findByIdAndDelete(appointmentTypeId);
 }
 
+getAppointmentsByTypeId = async (typeId) => {
+    var appointments = await getAllAppointments();
+    appointments = appointments.filter(a => a.appointmentType._id.equals(typeId));
+    return appointments;
+}
+
+const deleteAppointmentByTypeId = async (typeId) => {
+    await Appointment.deleteMany({ appointmentTypeId: typeId});
+}
+
 module.exports = {
     getAppointmentTypeById,
     getAllAppointmentTypes,
@@ -154,5 +164,7 @@ module.exports = {
     updateAppointment,
     updateAppointmentType,
     deleteAppointment,
-    deleteAppointmentType
+    deleteAppointmentType,
+    getAppointmentsByTypeId,
+    deleteAppointmentByTypeId
 }
