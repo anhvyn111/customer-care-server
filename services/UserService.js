@@ -129,18 +129,76 @@ getUserById = async (id, role) => {
 };
 
 getById = async (id) => {
-  var user = await User.findById(id);
-  return user;
-};
+    var user = await User.aggregate([
+        {
+          $lookup: {
+            from: "accounts",
+            localField: "accountId",
+            foreignField: "_id",
+            as: "account",
+          }
+        },
+        { $unwind: "$account" },
+        {   
+            $project:{
+                _id : 1,
+                name : 1,
+                birth : 1,
+                phoneNumber : 1,
+                date: 1,
+                username : "$account.username",
+                gender: 1,
+                role: "$account.role",
+                createdAt: 1,
+                updatedAt: 1
+            } 
+        },
+        { $match: { _id: id }}
+    ]);
+    return user[0];
+}
 
 getByUserName = async (userName) => {
-  var account = await Account.findOne({ username: userName });
-  return account;
-};
-getByAccountId = async (id) => {
-  var user = await User.findOne({ accountId: mongoose.Types.ObjectId(id) });
-  return user;
-};
+    var user = await User.aggregate([
+        {
+          $lookup: {
+            from: "accounts",
+            localField: "accountId",
+            foreignField: "_id",
+            as: "account",
+          }
+        },
+        { $unwind: "$account" },
+        {   
+            $project:{
+                _id : 1,
+                name : 1,
+                birth : 1,
+                phoneNumber : 1,
+                username : "$account.username",
+                role: "$account.role",
+                createdAt: 1,
+                updatedAt: 1
+            } 
+        },
+        { $match: { username: userName }}
+    ]);
+    console.log(user[0]);
+    // // var account = await Account.findOne({ username: userName });
+    // // var user = await User.findOne({ accountId: account._id });
+    // // return {
+    // //     _id : user._id,
+    // //     name : user.name,
+    // //     birth : user.birth,
+    // //     phoneNumber : user.phoneNumber,
+    // //     username : account.username,
+    // //     role: account.role,
+    // //     createdAt: 1,
+    // //     updatedAt: 1
+    // // };
+    return user[0];
+}
+
 updateUser = async (user) => {
   var result = await User.findByIdAndUpdate(user._id, {
     name: user.name,

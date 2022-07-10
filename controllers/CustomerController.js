@@ -34,46 +34,6 @@ router.post("/login", async (req, res) => {
   });
 });
 
-
-router.post("/birthday", auth.isStaff, async (req, res) => {
-  var customers = await userService.getCustomersHasBirthDay();
-  return res.status(200).json(customers);
-});
-
-router.put("/:id", auth.isUser, async (req, res) => {
-  var id = req.params.id;
-  var customer = await userService.getUserById(id, userRole.Customer);
-
-  if (req.role == userRole.Customer && req.user._id != customer._id) {
-    res.status(403).json(`You do not have permission.`);
-  }
-  if (customer == null) {
-    res.status(404).json(`Not found the customer with id is ${id}`);
-  }
-
-  var updatedCustomer = {
-    _id: id,
-    name: req.body.name,
-    phonerNumber: req.body.phonerNumber,
-    birth: req.body.birth,
-    gender: req.body.gender,
-  };
-
-  var result = await userService.updateUser(updatedCustomer);
-  return res.status(200).json(result);
-});
-
-router.delete("/:id", auth.isAdmin, async (req, res) => {
-  var id = req.params.id;
-  var customer = await userService.getUserById(id, userRole.Customer);
-  console.log(customer);
-  if (customer == null) {
-    return res.status(404).json("Customer not found");
-  }
-  await userService.deleteUser(id);
-  return res.status(200).json(true);
-});
-
 router.post("/register", async (req, res) => {
   var newUser = {
     name: req.body.name,
@@ -111,5 +71,54 @@ router.get('/:id', auth.isUser, async (req, res) => {
         return res.status(400).json({ message: "User is not existed " });
     }
 });
+
+router.post('/birthday', auth.isStaff, async (req, res) => {
+    var customers = await userService.getCustomersHasBirthDay();
+    return res.status(200).json(customers);
+})
+
+router.put('/:id', auth.isUser, async (req, res) => {
+    try{
+        var id = req.params.id;
+        var customer = await userService.getUserById(id, userRole.Customer);
+
+        if(req.role == userRole.Customer && !req.user._id.equals(customer._id)){
+            return res.status(403).json(`You do not have permission.`);
+        }
+        if (customer == null){
+            return res.status(404).json(`Not found the customer with id is ${id}`);
+        }
+
+        var updatedCustomer = {
+            _id: id,
+            name: req.body.name,
+            phonerNumber: req.body.phonerNumber,
+            birth: req.body.birth,
+            gender: req.body.gender
+        }
+
+        var result = await userService.updateUser(updatedCustomer);
+        return res.status(200).json(result);
+    }
+    catch(err){
+        return res.status(400).json(err);
+    }
+})
+
+router.delete('/:id', auth.isAdmin, async (req, res) => {
+    try{
+        var id = req.params.id;
+        var customer = await userService.getUserById(id, userRole.Customer);
+        console.log(customer);
+        if (customer == null){
+            return res.status(404).json("Customer not found");
+        }
+        await userService.deleteUser(id);
+        return res.status(200).json(true);
+    }
+    catch(err){
+        return res.status(400).json(err);
+    }
+})
 
 module.exports = router;

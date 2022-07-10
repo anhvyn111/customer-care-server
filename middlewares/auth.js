@@ -56,7 +56,8 @@ const isAdmin = (req, res, next) => {
         }
         else 
         {
-            var account = await _userService.getByUserName(data.username);            
+            var account = await _userService.getByUserName(data.username);
+            console.log(account);            
             if (account.role != UserRole.Admin){
                 return res.status(403).json("You do not have permission.");
             }
