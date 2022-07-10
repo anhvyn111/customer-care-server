@@ -29,7 +29,7 @@ router.post("/login", async (req, res) => {
   );
   return res.status(200).json({
     status: 200,
-    user: { username: user.username, role: user.role },
+    user: { username: user.username, role: user.role, id: user._id },
     token,
   });
 });

@@ -1,27 +1,34 @@
 const mongoose = require("mongoose");
 const referrenceValidator = require("mongoose-referrence-validator");
 
-const AppointmentSchema = new mongoose.Schema({
-        customerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: 'User'
-        },
-        staffId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        appointmentTypeId: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: 'AppointmentType'  
-        },
-        date: {
-            type: Date,
-            required: true
-        }
+const AppointmentSchema = new mongoose.Schema(
+  {
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      ref: "User",
     },
-    { timestamps: true }
+    phoneNumber: {
+      type: String,
+    },
+    customerName: {
+      type: String,
+    },
+    staffId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    appointmentTypeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "AppointmentType",
+    },
+    date: {
+      type: Date,
+      required: true,
+    },
+  },
+  { timestamps: true }
 );
 
 AppointmentSchema.plugin(referrenceValidator);

@@ -42,25 +42,28 @@ router.post("/", auth.isStaff || auth.isAdmin, async (req, res) => {
     if (newVoucher == null) {
       return res.status(500).json("Can not create new voucher.");
     }
-})
+  } catch (err) {
+    console.log(err);
+  }
+});
 
-router.put('/:id', auth.isStaff, async (req, res) => {
-    var id = req.params.id;
-    if (req.role == userRole.Staff && req.user.id != id){
-        return res.status(403).json("You do not have permission");
-    }
-    var updateStaff = {
-        name: req.body.name,
-        phonerNumber: req.body.phonerNumber,
-        birth: req.body.birth,
-        gender: req.body.gender
-    }
+router.put("/:id", auth.isStaff, async (req, res) => {
+  var id = req.params.id;
+  if (req.role == userRole.Staff && req.user.id != id) {
+    return res.status(403).json("You do not have permission");
+  }
+  var updateStaff = {
+    name: req.body.name,
+    phonerNumber: req.body.phonerNumber,
+    birth: req.body.birth,
+    gender: req.body.gender,
+  };
 
-    var updateStaff = await userService
-})
+  var updateStaff = await userService;
+});
 
 router.delete("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
   var id = req.params.id;
 });
 
-module.exports = router; 
+module.exports = router;
