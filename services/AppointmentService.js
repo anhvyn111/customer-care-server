@@ -46,7 +46,7 @@ const getAppointmentById = async (appointmentId) => {
         {   
             $project:{
                 _id : 1,
-                appointmentName : "$appointmentType.name",
+                appointmentType : "$appointmentType",
                 customer : "$customer",
                 staff: "$staff",
                 updatedAt: 1

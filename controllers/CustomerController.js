@@ -42,7 +42,7 @@ router.get('/', auth.isAdmin, async (req, res) => {
 router.get('/:id', auth.isAdmin, async (req, res) => {
     var id = req.params.id;
     console.log(req.role);
-    if(req.role == userRole.Customer &&  id != req.user._id) {
+    if(req.role == userRole.Customer &&  !req.user._id.equals(id)) {
         return res.status(403).json("You do not have permission.");
     }
     var customer = await userService.getById(id);
@@ -61,11 +61,11 @@ router.put('/:id', auth.isUser, async (req, res) => {
     var id = req.params.id;
     var customer = await userService.getUserById(id, userRole.Customer);
 
-    if(req.role == userRole.Customer && req.user._id != customer._id){
-        res.status(403).json(`You do not have permission.`);
+    if(req.role == userRole.Customer && !req.user._id.equals(customer._id)){
+        return res.status(403).json(`You do not have permission.`);
     }
     if (customer == null){
-        res.status(404).json(`Not found the customer with id is ${id}`);
+        return res.status(404).json(`Not found the customer with id is ${id}`);
     }
 
     var updatedCustomer = {

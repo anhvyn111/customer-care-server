@@ -31,7 +31,6 @@ const updateVoucher = async (voucher) => {
 }
 
 const deleteVoucher = async (id) => {
-    await CustomerVoucher.findOneAndDelete({customerId: id});
     await Voucher.findByIdAndDelete(id);
 }
 
@@ -190,6 +189,45 @@ const isCustomerVoucherExisted = async (voucherId, customerId) => {
     return false;
 }
 
+const getCustomerVouchersByVoucherCode = async (voucherCode) => {
+    var customerVouchers = await CustomerVoucher.aggregate([
+        {
+          $lookup: {
+            from: "vouchers",
+            localField: "voucherId",
+            foreignField: "_id",
+            as: "voucher",
+          }
+        },
+        { $unwind: "$voucher" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "customerId",
+              foreignField: "_id",
+              as: "customer",
+            },
+        },
+        { $unwind: "$customer" },      
+        {   
+            $project:{
+                _id : 1,
+                voucherName : "$voucher.voucherName",
+                voucherCode : "$voucher.voucherCode",
+                dueDate: 1,
+                isUsed: 1,
+                customer: "$customer",
+            } 
+        },
+        { $match: { voucherCode: mongoose.Types.ObjectId(voucherCode) } }
+    ]);
+    
+    return customerVouchers;
+}
+
+const deleteCustomerVouchesrByVoucherId = async (id) => {
+    await CustomerVoucher.deleteMany({ voucherId: id});
+}
 
 module.exports = {
     createVoucher,
@@ -204,5 +242,7 @@ module.exports = {
     getAllCustomerVouchers,
     getCustomerVouchersByCustomerId,
     getCustomerVoucherById,
-    isCustomerVoucherExisted
+    isCustomerVoucherExisted,
+    getCustomerVouchersByVoucherCode,
+    deleteCustomerVouchesrByVoucherId
 }
