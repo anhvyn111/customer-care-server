@@ -110,19 +110,6 @@ router.post("/register", async (req, res) => {
   res.status(200).json(result);
 });
 
-router.get("/", auth.isStaff || auth.isAdmin, async (req, res) => {
-  var customers = await userService.getAllCustomers();
-  return res.status(200).json(customers);
-});
-
-router.get("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
-  var id = req.params.id;
-  if (req.role == userRole.Customer && id != req.user._id) {
-    return res.status(403).json("You do not have permission.");
-  }
-  var customer = await userService.getById(id);
-  return res.status(200).json(customer);
-});
 router.get("/accountId/:id", auth.isUser, async (req, res) => {
   try {
     var id = req.params.id;
@@ -136,4 +123,5 @@ router.get("/accountId/:id", auth.isUser, async (req, res) => {
     return res.status(400).json({ message: "User is not existed " });
   }
 });
+
 module.exports = router;
