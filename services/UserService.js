@@ -80,18 +80,20 @@ getAllUsers = async (userRole) => {
 };
 
 getCustomersHasBirthDay = async () => {
-  var birthCustomers = [];
-  var now = new Date();
-  var customers = await getAllUsers(userRole.Customer);
+    var birthCustomers = [];
+    var now = new Date();
+    var customers = await getAllUsers(userRole.Customer);
+    customers.forEach(c => {
+        let day = c.birth.getDate();
+        let month = c.birth.getMonth();
+        console.log(month, day);
+        if ( now.getDate() == day && now.getMonth() == month){
+            birthCustomers.push(c);
+        }
+        return birthCustomers;
+    });  
+}
 
-  customers.forEach((c) => {
-    console.log(month, day);
-    if (now.getDate() == day && now.getMonth() == month) {
-      birthCustomers.push(c);
-    }
-  });
-  return birthCustomers;
-};
 
 getUserById = async (id, role) => {
   var user = await User.aggregate([
