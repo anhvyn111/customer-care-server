@@ -13,46 +13,47 @@ const getAllAppointmentTypes = async () => {
 };
 
 const getAppointmentById = async (appointmentId) => {
-  console.log(appointmentId);
-  const appointment = await Appointment.aggregate([
-    {
-      $lookup: {
-        from: "appointmenttypes",
-        localField: "appointmentTypeId",
-        foreignField: "_id",
-        as: "appointmentType",
-      },
-    },
-    { $unwind: "$appointmentType" },
-    {
-      $lookup: {
-        from: "users",
-        localField: "customerId",
-        foreignField: "_id",
-        as: "customer",
-      },
-    },
-    { $unwind: "$customer" },
-    {
-      $lookup: {
-        from: "users",
-        localField: "staffId",
-        foreignField: "_id",
-        as: "staff",
-      },
-    },
-    { $unwind: "$staff" },
-    {
-      $project: {
-        _id: 1,
-        appointmentName: "$appointmentType.name",
-        customer: "$customer",
-        staff: "$staff",
-        updatedAt: 1,
-      },
-    },
-    { $match: { _id: mongoose.Types.ObjectId(appointmentId) } },
-  ]);
+    console.log(appointmentId);
+    const appointment =  await Appointment.aggregate([
+        {
+          $lookup: {
+            from: "appointmenttypes",
+            localField: "appointmentTypeId",
+            foreignField: "_id",
+            as: "appointmentType",
+          }
+        },
+        { $unwind: "$appointmentType" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "customerId",
+              foreignField: "_id",
+              as: "customer",
+            },
+        },
+        { $unwind: "$customer" },
+        {
+            $lookup: {
+              from: "users",
+              localField: "staffId",
+              foreignField: "_id",
+              as: "staff",
+            },
+            
+        },
+        { $unwind: "$staff" },
+        {   
+            $project:{
+                _id : 1,
+                appointmentType : "$appointmentType",
+                customer : "$customer",
+                staff: "$staff",
+                updatedAt: 1
+            }
+        },
+        { $match: { _id: mongoose.Types.ObjectId(appointmentId) } }
+    ]);
 
   console.log(appointment);
   return appointment[0];

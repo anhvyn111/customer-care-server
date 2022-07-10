@@ -47,23 +47,44 @@ router.post("/", auth.isStaff || auth.isAdmin, async (req, res) => {
   }
 });
 
-router.put("/:id", auth.isStaff, async (req, res) => {
-  var id = req.params.id;
-  if (req.role == userRole.Staff && req.user.id != id) {
-    return res.status(403).json("You do not have permission");
-  }
-  var updateStaff = {
-    name: req.body.name,
-    phonerNumber: req.body.phonerNumber,
-    birth: req.body.birth,
-    gender: req.body.gender,
-  };
+router.put('/:id', auth.isStaff, async (req, res) => {
+   try{
+    var id = req.params.id;
+    var voucherName = req.body.voucherName;
+    var voucherCode = req.body.voucherCode;
+    var duration = req.body.duration;
 
-  var updateStaff = await userService;
-});
+    if (req.role == userRole.Staff && !req.user.id.equals(id)){
+        return res.status(403).json("You do not have permission");
+    }
+    var updateVoucher = {
+        voucherName,
+        voucherCode,
+        duration
+    }
 
-router.delete("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
-  var id = req.params.id;
-});
+    var updateVoucher = await _voucherService.updateVoucher(updateVoucher);
+    return res.status(200).json(updateVoucher);
+   }
+   catch(err){
+        return res.status(400).json(err);
+   }
+})
 
-module.exports = router;
+router.delete('/:id', auth.isStaff, async (req, res) => {
+    var id = req.params.id;
+    var voucher = await _voucherService.getVoucherById(id);
+    if (voucher == null) {
+        return res.status(404).json("Voucher not found");
+    }
+    var customerVouchers = await _voucherService.getCustomerVouchersByVoucherCode();
+    customerVouchers = customerVouchers.filter(cv => cv.dueDate >= new Date());
+    if (customerVouchers.length > 0){
+        return res.status(400).json("Cannot delete because we have customer vouchers which are using this voucher.");
+    }
+    await _voucherService.deleteCustomerVouchesrByVoucherId(voucher._id);
+    await _voucherService.deleteVoucher(voucher._id);
+    return res.status(200).json(true);
+})
+
+module.exports = router; 
