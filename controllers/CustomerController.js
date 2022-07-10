@@ -34,23 +34,6 @@ router.post("/login", async (req, res) => {
   });
 });
 
-router.get("/", auth.isAdmin, async (req, res) => {
-  var customers = await userService.getAllUsers(userRole.Customer);
-  return res.status(200).json(customers);
-});
-
-router.get("/:id", auth.isAdmin, async (req, res) => {
-  var id = req.params.id;
-  console.log(req.role);
-  if (req.role == userRole.Customer && id != req.user._id) {
-    return res.status(403).json("You do not have permission.");
-  }
-  var customer = await userService.getById(id);
-  if (customer == null) {
-    return res.status(404).json("Customer not found");
-  }
-  return res.status(200).json(customer);
-});
 
 router.post("/birthday", auth.isStaff, async (req, res) => {
   var customers = await userService.getCustomersHasBirthDay();
@@ -110,18 +93,23 @@ router.post("/register", async (req, res) => {
   res.status(200).json(result);
 });
 
-router.get("/accountId/:id", auth.isUser, async (req, res) => {
-  try {
-    var id = req.params.id;
-    var customer = await userService.getByAccountId(id);
-    if (customer === null) {
-      return res.status(400).json({ message: "User is not existed " });
+router.get('/', auth.isStaff, async (req, res) => {
+    var customers = await userService.getAllUsers(userRole.Customer);
+    return res.status(200).json(customers);
+})
+
+router.get('/:id', auth.isUser, async (req, res) => {
+    try{
+        var id = req.params.id;
+        var customer = await userService.getByAccountId(id);
+        if (customer === null) {
+        return res.status(400).json({ message: "User is not existed " });
+        }
+        return res.status(200).json(customer);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "User is not existed " });
     }
-    return res.status(200).json(customer);
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ message: "User is not existed " });
-  }
 });
 
 module.exports = router;
