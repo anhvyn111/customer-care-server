@@ -68,8 +68,16 @@ router.get("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
   return res.status(200).json(customer);
 });
 router.get("/accountId/:id", auth.isUser, async (req, res) => {
-  var id = req.params.id;
-  var customer = await userService.getByAccountId(id);
-  return res.status(200).json(customer);
+  try {
+    var id = req.params.id;
+    var customer = await userService.getByAccountId(id);
+    if (customer === null) {
+      return res.status(400).json({ message: "User is not existed " });
+    }
+    return res.status(200).json(customer);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "User is not existed " });
+  }
 });
 module.exports = router;
