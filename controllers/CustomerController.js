@@ -61,7 +61,7 @@ router.get('/', auth.isStaff, async (req, res) => {
 router.get('/:id', auth.isUser, async (req, res) => {
     try{
         var id = req.params.id;
-        var customer = await userService.getByAccountId(id);
+        var customer = await userService.getById(id);
         if (customer === null) {
         return res.status(400).json({ message: "User is not existed " });
         }

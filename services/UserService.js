@@ -224,5 +224,4 @@ module.exports = {
   getAllUsers,
   getCustomersHasBirthDay,
   updateUser,
-  getByAccountId,
 };
