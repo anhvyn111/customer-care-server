@@ -15,16 +15,17 @@ router.post('/', auth.isAdmin, async (req, res) => {
         name: req.body.name,
         phoneNumber: req.body.phoneNumber,
         birth: req.body.birth,
+        email:req.body.email,
         username: req.body.username,
         password: req.body.password,
         role: userRole.Staff
     }
     var existingAccount = await userService.getByUserName(req.body.username);
-    if (existingAccount != null)  return res.status(400).json({status: 400, message: "Username is existing"});
+    if (existingAccount != null)  return res.status(400).json({ message: "Username is existing"});
     var result  = await userService.create(newStaff);
     if(!result) 
         return res.status(400).json(result);
-    res.status(200).json(result);
+    return res.status(200).json(result);
 })
 
 router.get('/', auth.isAdmin, async (req, res) => {

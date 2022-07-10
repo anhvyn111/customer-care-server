@@ -38,7 +38,6 @@ create = async (newUser) => {
         birth: new Date(newUser.birth),
         accountId: data._id,
         email: newUser.email,
-        rank: newUser.rank,
       });
       await user.save((err, data) => console.log(data));
     }
@@ -64,6 +63,7 @@ getAllUsers = async (userRole) => {
         name: 1,
         phoneNumber: 1,
         birth: 1,
+        email:1,
         username: "$account.username",
         createdAt: 1,
         updatedAt: 1,
@@ -113,6 +113,7 @@ getUserById = async (id, role) => {
         name: 1,
         phoneNumber: 1,
         birth: 1,
+        email:1,
         username: "$account.username",
         createdAt: 1,
         updatedAt: 1,
@@ -146,6 +147,7 @@ getById = async (id) => {
                 birth : 1,
                 phoneNumber : 1,
                 date: 1,
+                email:1,
                 username : "$account.username",
                 gender: 1,
                 role: "$account.role",
@@ -175,6 +177,7 @@ getByUserName = async (userName) => {
                 name : 1,
                 birth : 1,
                 phoneNumber : 1,
+                email:1,
                 username : "$account.username",
                 role: "$account.role",
                 createdAt: 1,
@@ -183,7 +186,6 @@ getByUserName = async (userName) => {
         },
         { $match: { username: userName }}
     ]);
-    console.log(user[0]);
     // // var account = await Account.findOne({ username: userName });
     // // var user = await User.findOne({ accountId: account._id });
     // // return {
@@ -204,6 +206,7 @@ updateUser = async (user) => {
     name: user.name,
     birth: user.birth,
     gender: user.gender,
+    email:user.email,
   });
   return result;
 };

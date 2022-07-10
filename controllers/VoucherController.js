@@ -42,6 +42,7 @@ router.post("/", auth.isStaff || auth.isAdmin, async (req, res) => {
     if (newVoucher == null) {
       return res.status(500).json("Can not create new voucher.");
     }
+    return res.status(200).json(newVoucher)
   } catch (err) {
     console.log(err);
   }
