@@ -1,6 +1,9 @@
 const Voucher = require("../mongoose-entities/Voucher");
 const CustomerVoucher = require("../mongoose-entities/CustomerVoucher");
 const mongoose = require("mongoose");
+const User = require("../mongoose-entities/User");
+const _userService = require("./UserService");
+const userRole = require("../models/Role");
 
 const createVoucher = async (voucher) => {
     var newVoucher = new Voucher({
@@ -71,7 +74,7 @@ const deleteCustomerVoucher = async(id) => {
     await CustomerVoucher.findByIdAndDelete(id);
 }
 
-const getAllCustomerVouchers = async (id) => {
+const getAllCustomerVouchers = async () => {
     var customerVouchers = await CustomerVoucher.aggregate([
         {
           $lookup: {
@@ -94,20 +97,50 @@ const getAllCustomerVouchers = async (id) => {
         {   
             $project:{
                 _id : 1,
+                voucherName : "$voucher.voucherName",
+                voucherCode : "$voucher.voucherCode",
                 dueDate: 1,
-                appointmentType : "$voucher",
-                customer : "$customer",
-                createdAt: 1
+                customerId: 1,
+                isUsed: 1
             } 
-        },
-        { $sort: { customer: 1} }
+        }
     ]);
-    return customerVouchers;
+
+    var customers = await _userService.getAllUsers(userRole.Customer);
+    // for(i = 0; i < customers.length; i++){
+    //     customers[i].vouchers = [];
+    //     for(j = 0; j < customerVouchers.length; j++){
+    //         if (customerVouchers[j].customerId.equals(customers[i]._id)){
+    //             console.log("cv1", customerVouchers[j].customerId);
+    //             console.log("c", customers[i]._id);
+    //             customers[i].vouchers.push(customerVouchers[j]);
+    //         }
+    //     }
+    // }
+    customers.forEach(c => {
+        c.vouchers = [];
+        customerVouchers.forEach(cv => {
+            if (cv.customerId.equals(c._id)){
+                c.vouchers.push(cv);
+            }
+        })
+        if (c.vouchers.length == 0){
+            customers.pop(c);
+        }
+    })
+    // var grouped = groupBy(customerVouchers, customerVoucher => customerVoucher.customerId);
+    // console.log(grouped);
+    // customers.forEach(c => {
+    //     console.log(c._id);
+    //     c.vouchers = grouped.get(c._id);
+    // })
+    console.log("1", customers);
+    return customers;
 }
 
 const getCustomerVouchersByCustomerId = async (customerId) => {
     var customerVouchers = await getAllCustomerVouchers();
-    customerVouchers = customerVouchers.filter(c => c.customer._id == customerId);
+    customerVouchers = customerVouchers.filter(c => c._id.equals(customerId));
     console.log(customerVouchers);
     return customerVouchers;
 }
@@ -135,10 +168,11 @@ const getCustomerVoucherById = async (id) => {
         {   
             $project:{
                 _id : 1,
+                voucherName : "$voucher.voucherName",
+                voucherCode : "$voucher.voucherCode",
                 dueDate: 1,
-                voucher : "$voucher",
-                customer : "$customer",
-                createdAt: 1
+                isUsed: 1,
+                customer: "$customer"
             } 
         },
         { $match: { _id: mongoose.Types.ObjectId(id) } }
