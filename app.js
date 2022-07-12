@@ -5,6 +5,8 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const PORT = process.env.PORT || 5000;
 
+const _messageService = require("./services/MessageService");
+const userRole = require("./models/Role");
 //controllers
 const accountController = require("./controllers/AccountController");
 const appointmentController = require("./controllers/AppointmentController");
@@ -14,7 +16,7 @@ const customerVoucherController = require("./controllers/CustomerVoucherControll
 const messageController = require("./controllers/MessageController");
 const staffController = require("./controllers/StaffController");
 const appointmentTypeController = require("./controllers/AppointmentTypeController");
-
+const socketio = require("socket.io");
 const app = express();
 
 dotenv.config();
@@ -49,8 +51,3 @@ app.use("/api/voucher", voucherController);
 app.use("/api/customervoucher", customerVoucherController);
 app.use("/api/message", messageController);
 app.use("/api/staff", staffController);
-app.use("/api/appointmenttype", appointmentTypeController);
-
-app.listen(PORT, () => {
-  console.log("server is running 5000");
-});
