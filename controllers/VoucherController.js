@@ -14,7 +14,7 @@ router.get("/", auth.isStaff || auth.isAdmin, async (req, res) => {
   }
 });
 
-router.get("/:id", auth.isStaff || auth.isAdmin, async (req, res) => {
+router.get("/:id",auth.isStaff || auth.isAdmin, async (req, res) => {
   var id = req.params.id;
   var voucher = await _voucherService.getVoucherById(id);
   if (!voucher) {
@@ -59,6 +59,7 @@ router.put('/:id', auth.isStaff, async (req, res) => {
         return res.status(403).json("You do not have permission");
     }
     var updateVoucher = {
+        _id:id,
         voucherName,
         voucherCode,
         duration

@@ -5,7 +5,7 @@ const userService = require("../services/UserService.js");
 const userRole = require("../models/Role.js");
 const customerRank = require("../models/Rank.js");
 const auth = require("../middlewares/auth.js");
-
+const mongoose = require("mongoose");
 dotenv.config();
 
 router.post("/login", async (req, res) => {
@@ -43,7 +43,6 @@ router.post("/register", async (req, res) => {
     password: req.body.password,
     email: req.body.email,
     role: userRole.Customer,
-    rank: customerRank.None,
   };
   var existingAccount = await userService.getByUserName(req.body.phoneNumber);
   if (existingAccount != null)
@@ -62,7 +61,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
     try{
         var id = req.params.id;
         var customer = await userService.getById(id);
-        if (customer === null) {
+        if (!customer) {
         return res.status(400).json({ message: "User is not existed " });
         }
         return res.status(200).json(customer);
@@ -94,12 +93,13 @@ router.put('/:id', auth.isUser, async (req, res) => {
             name: req.body.name,
             phonerNumber: req.body.phonerNumber,
             birth: req.body.birth,
+            email:req.body.email,
             gender: req.body.gender
         }
 
         var result = await userService.updateUser(updatedCustomer);
         return res.status(200).json(result);
-    }
+      }
     catch(err){
         return res.status(400).json(err);
     }
