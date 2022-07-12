@@ -63,11 +63,14 @@ router.delete('/:id', auth.isStaff, async (req, res) => {
             return res.status(404).json("Appointment type not found");
 
         var appointments = await _appointmentService.getAppointmentsByTypeId(id);  
-        console.log(appointments[0].date.getTime());
-        appointments = appointments.filter(a => a.date.getTime() >= new Date().getTime());
-    
-        if ( appointments.length > 0){
-            return res.status(400).json("Can not delete because we have appointments which are using this appointment type.");
+        if(appointments.length > 0){
+            appointments = appointments.filter(a => a.date.getTime() >= new Date().getTime());
+            if ( appointments.length > 0){
+                return res.status(400).json("Can not delete because we have appointments which are using this appointment type.");
+            }
+            await _appointmentService.deleteAppointmentType(id);
+            await _appointmentService.deleteAppointmentByTypeId(id);
+            return res.status(200).json(true);
         }
         // if(result) {
         //     var message = `Xin chào ${result.customer.name}\nNguyễn Anh Vy muốn gửi lời yêu thương đến bạn "I luv you <3"`;
@@ -80,6 +83,7 @@ router.delete('/:id', auth.isStaff, async (req, res) => {
     }
     catch(err) 
     {
+        console.log(err)
         res.status(400).json(err);
     }
 });

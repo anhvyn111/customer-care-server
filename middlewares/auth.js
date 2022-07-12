@@ -13,7 +13,7 @@ const isUser = (req, res, next) => {
       res.status(401).json("You need to login");
     } else {
       const account = await _userService.getByUserName(data.username);
-      req.user = await User.findOne({ accountId: account._id });
+      req.user = account;
       req.role = account.role;
       next();
     }

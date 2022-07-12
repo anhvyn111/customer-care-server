@@ -155,7 +155,7 @@ getById = async (id) => {
                 updatedAt: 1
             } 
         },
-        { $match: { _id: id }}
+        { $match: { _id: mongoose.Types.ObjectId(id) }}
     ]);
     return user[0];
 }
@@ -204,10 +204,11 @@ getByUserName = async (userName) => {
 updateUser = async (user) => {
   var result = await User.findByIdAndUpdate(user._id, {
     name: user.name,
+    phoneNumber:user.phoneNumber,
     birth: user.birth,
     gender: user.gender,
     email:user.email,
-  });
+  },{returnOriginal: false});
   return result;
 };
 

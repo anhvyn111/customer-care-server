@@ -56,9 +56,9 @@ router.put('/:id', auth.isStaff, async (req, res) => {
     var updatedStaff = {
         _id: id,
         name: req.body.name,
-        phonerNumber: req.body.phonerNumber,
+        phoneNumber: req.body.phoneNumber,
         birth: req.body.birth,
-        gender: req.body.gender
+        email:req.body.email
     }
 
     var result = await userService.updateUser(updatedStaff);

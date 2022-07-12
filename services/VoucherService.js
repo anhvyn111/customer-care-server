@@ -21,7 +21,7 @@ const createVoucher = async (voucher) => {
 }
 
 const updateVoucher = async (voucher) => {
-    var updatedVoucher = await voucher.findByIdAndUpdate(voucher._id, 
+    var updatedVoucher = await Voucher.findByIdAndUpdate(voucher._id, 
         {
             voucherName: voucher.voucherName,
             voucherCode: voucher.voucherCode,
@@ -95,7 +95,8 @@ const getAllCustomerVouchers = async () => {
         { $unwind: "$customer" },      
         {   
             $project:{
-                _id : 1,
+                _id : "$voucherId",
+                voucherCustomerId:"$_id",
                 voucherName : "$voucher.voucherName",
                 voucherCode : "$voucher.voucherCode",
                 dueDate: 1,
@@ -104,7 +105,6 @@ const getAllCustomerVouchers = async () => {
             } 
         }
     ]);
-
     var customers = await _userService.getAllUsers(userRole.Customer);
     // for(i = 0; i < customers.length; i++){
     //     customers[i].vouchers = [];
@@ -123,9 +123,6 @@ const getAllCustomerVouchers = async () => {
                 c.vouchers.push(cv);
             }
         })
-        if (c.vouchers.length == 0){
-            customers.pop(c);
-        }
     })
     // var grouped = groupBy(customerVouchers, customerVoucher => customerVoucher.customerId);
     // console.log(grouped);
@@ -133,15 +130,14 @@ const getAllCustomerVouchers = async () => {
     //     console.log(c._id);
     //     c.vouchers = grouped.get(c._id);
     // })
-    console.log("1", customers);
-    return customers;
+
+    return  customers.filter(c => c.vouchers.length !== 0 );
 }
 
 const getCustomerVouchersByCustomerId = async (customerId) => {
     var customerVouchers = await getAllCustomerVouchers();
     customerVouchers = customerVouchers.filter(c => c._id.equals(customerId));
-    console.log(customerVouchers);
-    return customerVouchers;
+    return customerVouchers[0];
 }
 
 const getCustomerVoucherById = async (id) => {
@@ -176,7 +172,6 @@ const getCustomerVoucherById = async (id) => {
         },
         { $match: { _id: mongoose.Types.ObjectId(id) } }
     ]);
-    console.log("customerVoucher",customerVoucher);
     return customerVoucher[0];
 }
 
