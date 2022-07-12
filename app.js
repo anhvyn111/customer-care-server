@@ -5,6 +5,8 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const PORT = process.env.PORT || 5000;
 
+const _messageService = require("./services/MessageService");
+const userRole = require("./models/Role");
 //controllers
 const accountController = require("./controllers/AccountController");
 const appointmentController = require("./controllers/AppointmentController");
@@ -14,7 +16,7 @@ const customerVoucherController = require("./controllers/CustomerVoucherControll
 const messageController = require("./controllers/MessageController");
 const staffController = require("./controllers/StaffController");
 const appointmentTypeController = require("./controllers/AppointmentTypeController");
-
+const socketio = require("socket.io");
 const app = express();
 
 dotenv.config();
@@ -51,6 +53,39 @@ app.use("/api/message", messageController);
 app.use("/api/staff", staffController);
 app.use("/api/appointmenttype", appointmentTypeController);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log("server is running 5000");
+});
+
+//Socket.io
+const io = socketio(server);
+
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.token;
+    await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        res.status(401).json("You need to login");
+      } else {
+        const user = await _userService.getByUserName(data.username);
+        socket.id = user._id;
+        socket.role = user.role;
+        next();
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+io.on("connection", (socket) => {
+  socket.on("sendMessage", ({ userId, msg }) => {
+    const id = userId;
+    if (socket.role == userRole.Customer){
+      id = socket.id;
+    }
+    const messageRoom = _messageService.getMessageByUserId(socket.id);
+    io.to(messageRoom).emit("newMessage", msg);
+  });
+  socket.on("disconnect", () => {});
 });
