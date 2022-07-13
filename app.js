@@ -79,6 +79,7 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", (socket) => {
+  console.log(`${socket.id} connected`);
   socket.on("sendMessage", ({ userId, msg }) => {
     const id = userId;
     if (socket.role == userRole.Customer){
