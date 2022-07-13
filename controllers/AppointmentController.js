@@ -20,17 +20,15 @@ router.get("/", auth.isUser, async (req, res) => {
 
 router.get("/:id", auth.isUser, async (req, res) => {
   var appointmentId = req.params.id;
-  console.log(appointmentId);
   const appointment = await _appointmentService.getAppointmentById(
     appointmentId
   );
-  console.log(appointment);
   return res.status(200).json(appointment);
 });
 
 router.post(
   "/",
-  auth.isUser || auth.isAdmin || auth.isStaff,
+  
   async (req, res) => {
     try {
       const appointment = {
@@ -49,7 +47,7 @@ router.post(
         appointment.staffId,
         userRole.Staff
       );
-      if (appointment.customerId !== null) {
+      if (appointment.customerId !== "") {
         const customer = await _userService.getUserById(
           appointment.customerId,
           userRole.Customer
@@ -74,6 +72,7 @@ router.post(
       //    //await _smsService.sendSms(result.customer.phoneNumber, message)
       // }
     } catch (err) {
+      console.log(err)
       res.status(400).json(err);
     }
   }
@@ -102,7 +101,6 @@ router.put("/:id", auth.isStaff, async (req, res) => {
     if (appointmentType == null || staff == null || customer == null)
       return res.status(400).json("Something was wrong.");
     const result = await _appointmentService.createAppointment(appointment);
-    console.log(result);
 
     // if(result) {
     //     var message = `Xin chào ${result.customer.name}\nNguyễn Anh Vy muốn gửi lời yêu thương đến bạn "I luv you <3"`;

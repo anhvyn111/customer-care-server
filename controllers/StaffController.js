@@ -28,14 +28,13 @@ router.post('/', auth.isAdmin, async (req, res) => {
     return res.status(200).json(result);
 })
 
-router.get('/', auth.isAdmin, async (req, res) => {
+router.get('/', async (req, res) => {
     var staffs = await userService.getAllUsers(userRole.Staff);
     return res.status(200).json(staffs);
 })
 
 router.get('/:id', auth.isAdmin, async (req, res) => {
     var id = req.params.id;
-    console.log(req.role);
     if(req.role == userRole.Staff &&  id != req.user._id) {
         return res.status(403).json("You do not have permission.");
     }
@@ -46,7 +45,6 @@ router.get('/:id', auth.isAdmin, async (req, res) => {
 router.put('/:id', auth.isStaff, async (req, res) => {
     var id = req.params.id;
     var staff = await userService.getUserById(id, userRole.Staff);
-    console.log(staff);
     if(req.role == userRole.Staff && req.user._id != staff._id){
         res.status(403).json(`You do not have permission.`);
     }
@@ -68,7 +66,6 @@ router.put('/:id', auth.isStaff, async (req, res) => {
 router.delete('/:id', auth.isAdmin, async (req, res) => {
     var id = req.params.id;
     var staff = await userService.getUserById(id, userRole.Staff);
-    console.log(staff);
     if (staff == null){
         return res.status(404).json("Staff not found");
     }

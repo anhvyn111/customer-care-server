@@ -10,7 +10,6 @@ const sendMessage = async (message) => {
             staffId: staffId
         });
         var newMessage = await newMessage.save();
-        console.log(message);
     }
     var newMessageDetail = new MessageDetail({
         content: message.content,

@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 
 authenticate = async (username, password, roles) => {
   const existingAccount = await Account.findOne({ username: username }).exec();
-  console.log(existingAccount);
   if (existingAccount == null) {
     return -1;
   }
@@ -86,7 +85,6 @@ getCustomersHasBirthDay = async () => {
     customers.forEach(c => {
         let day = c.birth.getDate();
         let month = c.birth.getMonth();
-        console.log(month, day);
         if ( now.getDate() == day && now.getMonth() == month){
             birthCustomers.push(c);
         }

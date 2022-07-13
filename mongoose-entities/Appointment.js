@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
-const referrenceValidator = require("mongoose-referrence-validator");
+// const referrenceValidator = require("mongoose-referrence-validator");
 
 const AppointmentSchema = new mongoose.Schema(
   {
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: false,
-      ref: "User",
+      ref: "User" ,
     },
     phoneNumber: {
       type: String,
@@ -31,5 +30,5 @@ const AppointmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-AppointmentSchema.plugin(referrenceValidator);
+// AppointmentSchema.plugin(referrenceValidator);
 module.exports = mongoose.model("Appointment", AppointmentSchema);
