@@ -13,7 +13,6 @@ const getAllAppointmentTypes = async () => {
 };
 
 const getAppointmentById = async (appointmentId) => {
-    console.log(appointmentId);
     const appointment =  await Appointment.aggregate([
         {
           $lookup: {
@@ -54,8 +53,6 @@ const getAppointmentById = async (appointmentId) => {
         },
         { $match: { _id: mongoose.Types.ObjectId(appointmentId) } }
     ]);
-
-  console.log(appointment);
   return appointment[0];
 };
 
@@ -79,7 +76,7 @@ const getAllAppointments = async () => {
         as: "customer",
       },
     },
-    { $unwind: "$customer" },
+    { $unwind: {path:"$customer",preserveNullAndEmptyArrays: true}  },
     {
       $lookup: {
         from: "users",
@@ -92,17 +89,17 @@ const getAllAppointments = async () => {
     {
       $project: {
         _id: 1,
-        name: 1,
-        userName: 1,
+        customerName: 1,
+        phoneNumber: 1,
         appointmentType: "$appointmentType",
-        customer: "$customer",
+        customer:{ '$ifNull': ["$customer", "NULL"] },
         staff: "$staff",
         date: 1,
         updatedAt: 1,
       },
     },
   ]);
-
+ 
   return appointments;
 };
 

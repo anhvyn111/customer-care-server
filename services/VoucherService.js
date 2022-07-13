@@ -41,7 +41,6 @@ const getAllVouchers = async () => {
 
 const getVoucherById = async (id) => {
     var voucher = await Voucher.findById(id);
-    console.log("Voucher", voucher);
     return voucher;
 }
 const getVoucherByCode = async (voucherCode) => {
@@ -177,7 +176,6 @@ const getCustomerVoucherById = async (id) => {
 
 const isCustomerVoucherExisted = async (voucherId, customerId) => {
     var customerVoucher = await CustomerVoucher.findOne({ voucherId: voucherId, customerId: customerId });
-    console.log(customerVoucher);
     if(customerVoucher != null){
         return true;
     }

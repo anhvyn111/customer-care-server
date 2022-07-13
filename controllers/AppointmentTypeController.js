@@ -4,18 +4,18 @@ const _appointmentService = require("../services/AppointmentService");
 const _smsService = require("../services/SmsService");
 const _userService = require("../services/UserService");
 
-router.get('/', auth.isUser, async (req, res) => {
+router.get('/', async (req, res) => {
     const appointments = await _appointmentService.getAllAppointmentTypes();
     return res.status(200).json(appointments);
 });
 
-router.get('/:id', auth.isUser, async (req, res) => {
+router.get('/:id',auth.isStaff, async (req, res) => {
     var typeId = req.params.id;
     const appointmentType = await _appointmentService.getAppointmentTypeById(typeId);
     return res.status(200).json(appointmentType);
 });
 
-router.post('/', auth.isUser, async (req, res) => {
+router.post('/', auth.isStaff, async (req, res) => {
     try 
     {
         const typeName = req.body.name;
@@ -57,7 +57,6 @@ router.delete('/:id', auth.isStaff, async (req, res) => {
     {
         var id = req.params.id;
         const appointmentType = await _appointmentService.getAppointmentTypeById(id);
-        console.log(appointmentType);
 
         if (appointmentType == null)
             return res.status(404).json("Appointment type not found");

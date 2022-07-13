@@ -81,6 +81,7 @@ router.post("/", auth.isStaff, async (req, res) => {
     }
     return res.status(200).json(newcustomerVoucher);
   } catch (error) {
+    console.log(error)
     return res.status(500).json(error);
   }
 });
@@ -91,10 +92,10 @@ router.delete("/:id", auth.isStaff, async (req, res) => {
   var id = req.params.id;
   var customerVoucher = await _voucherService.getCustomerVoucherById(id);
   if (customerVoucher == null) {
-    return res.status(404);
+    return res.status(404).json(false);
   }
   await _voucherService.deleteCustomerVoucher(id);
-  return res.status(200);
+  return res.status(200).json(true);
 });
 
 router.post("/useVoucher", auth.isUser, async (req, res) => {});

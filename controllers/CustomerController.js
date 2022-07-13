@@ -109,7 +109,6 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
     try{
         var id = req.params.id;
         var customer = await userService.getUserById(id, userRole.Customer);
-        console.log(customer);
         if (customer == null){
             return res.status(404).json("Customer not found");
         }
