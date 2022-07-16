@@ -118,5 +118,14 @@ router.post("/type", auth.isAdmin, async (req, res) => {
   const result = await _appointmentService.createAppointmentType(typeName);
   return res.status(200).json(result);
 });
-
+router.delete("/:id",auth.isAdmin,async(req,res)=>{
+  var id = req.params.id;
+  var appointment = await _appointmentService.getAppointmentById(id)
+  console.log(appointment)
+  if(appointment === null){
+    return res.status(404).json(false);
+  }
+  await _appointmentService.deleteAppointment(id)
+  return res.status(200).json(true);
+})
 module.exports = router;

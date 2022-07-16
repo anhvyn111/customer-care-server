@@ -91,7 +91,7 @@ router.put("/:id", auth.isStaff, async (req, res) => {});
 router.delete("/:id", auth.isStaff, async (req, res) => {
   var id = req.params.id;
   var customerVoucher = await _voucherService.getCustomerVoucherById(id);
-  if (customerVoucher == null) {
+  if (customerVoucher === null) {
     return res.status(404).json(false);
   }
   await _voucherService.deleteCustomerVoucher(id);
