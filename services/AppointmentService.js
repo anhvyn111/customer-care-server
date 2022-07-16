@@ -164,6 +164,7 @@ const deleteAppointmentByTypeId = async (typeId) => {
   await Appointment.deleteMany({ appointmentTypeId: typeId });
 };
 
+
 module.exports = {
   getAppointmentTypeById,
   getAllAppointmentTypes,
