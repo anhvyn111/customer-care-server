@@ -6,13 +6,12 @@ const _userService = require("../services/UserService");
 const userRole = require("../models/Role");
 
 router.get("/", auth.isUser, async (req, res) => {
-  const appointments = await _appointmentService.getAllAppointments();
-
+  var appointments = await _appointmentService.getAllAppointments();
   if (
-    req.role == userRole.Customer &&
-    !req.user._id.equals(appointment.customerId)
+    req.role == userRole.Customer
   ) {
-    appointments = appointments.filter((a) => (a.customerId = req.user._id));
+
+    appointments=appointments.filter((a) => (a.customerId !== null && a.customerId.equals(req.user._id) ));
   }
 
   return res.status(200).json(appointments);
