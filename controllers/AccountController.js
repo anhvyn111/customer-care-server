@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
     process.env.ACCESS_TOKEN_SECRET
   );
   return res.status(200).json({
-    user: { username: user.username, role: user.role },
+    user: { username: user.username, role: user.role, id: user._id },
     token,
   });
 });

@@ -80,7 +80,9 @@ router.delete('/:id', auth.isStaff, async (req, res) => {
         return res.status(404).json("Voucher not found");
     }
     var customerVouchers = await _voucherService.getCustomerVouchersByVoucherCode();
-    customerVouchers = customerVouchers.filter(cv => cv.dueDate >= new Date());
+    if (customerVouchers.length > 0) {
+      customerVouchers = customerVouchers.filter(cv => cv.dueDate >= new Date());
+    }
     if (customerVouchers.length > 0){
         return res.status(400).json("Cannot delete because we have customer vouchers which are using this voucher.");
     }

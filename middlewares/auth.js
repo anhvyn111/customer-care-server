@@ -10,9 +10,12 @@ const isUser = (req, res, next) => {
   if (!token) res.status(401).json("You need to login");
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
     if (err) {
-      res.status(401).json("You need to login");
+      return res.status(401).json("You need to login");
     } else {
       const account = await _userService.getByUserName(data.username);
+      if (account == null){
+        return res.status(401).json("Token is not valid.");
+      } 
       req.user = account;
       req.role = account.role;
       next();
@@ -27,11 +30,14 @@ const isStaff = (req, res, next) => {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
         if (err)
         {
-            res.status(401).json("You need to login");
+            return res.status(401).json("You need to login");
         }
         else 
         {
             var account = await _userService.getByUserName(data.username);
+            if (account == null){
+                return res.status(401).json("Token is not valid.");
+            } 
             if (account.role == UserRole.Admin || account.role == UserRole.Staff){
                 req.user = User.findOne({ accountId: account._id });
                 req.role = account.role;
@@ -51,11 +57,14 @@ const isAdmin = (req, res, next) => {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
         if (err)
         {
-            res.status(401).json("You need to login");
+            return res.status(401).json("You need to login");
         }
         else 
         {
-            var account = await _userService.getByUserName(data.username);         
+            var account = await _userService.getByUserName(data.username);
+            if (account == null){
+                return res.status(401).json("Token is not valid.");
+            }    
             if (account.role != UserRole.Admin){
                 return res.status(403).json("You do not have permission.");
             }
