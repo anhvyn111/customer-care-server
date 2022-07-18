@@ -15,7 +15,13 @@ const MessageDetailSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
+    },
+    isRead: {
+        type: Boolean,
+        required: true,
+        default: false
     }
+
 }, { timestamps: true });
 
 MessageDetailSchema.plugin(referrenceValidator);

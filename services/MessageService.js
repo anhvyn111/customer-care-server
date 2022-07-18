@@ -3,93 +3,142 @@ const User = require("../mongoose-entities/User");
 const Message = require("../mongoose-entities/Message");
 const MessageDetail = require("../mongoose-entities/MessageDetail");
 const { MessageInstance } = require("twilio/lib/rest/api/v2010/account/message");
+const mongoose = require("mongoose");
+
 const sendMessage = async (message) => {
-    var existingMessage = await Message.findOne({ userId: message.userId });
-    if (existingMessage == null){
-        newMessage = new Message({
-            customerId: customerId,
-            staffId: staffId
-        });
-        var newMessage = await newMessage.save();
-    }
     var newMessageDetail = new MessageDetail({
         content: message.content,
-        userId: message.sentByUserId,
-        messageId: newMessage._id
+        userId: message.userId,
+        messageId: message.messageId
     });
     newMessageDetail = await newMessageDetail.save();
     return newMessageDetail;
 }
 
-const getMessagesByUser = async (userId) => {
+const getMessagesByUserId= async (userId) => {
     var messages = await User.aggregate([
         {
-          $lookup: {
-            from: "messageId",
-            localField: "userId",
-            foreignField: "_id",
-            as: "message",
-          }
-        },
-        { $unwind: "$message" },
-        {
             $lookup: {
-              from: "messagedetails",
-              localField: "messageId",
-              foreignField: "$message._id",
-              as: "messagedetail",
+              from: "messages",
+              localField: "_id",
+              foreignField: "customerId",
+              as: "message",
             },
         },
-        { $unwind: "$messagedetail" },
+        { $unwind: "$message" },
         {   
             $project:{
                 _id : 1,
                 name : 1,
                 message : "$message",
-                messagedetails: "$messagedetail"
             } 
         },
         { $match: { _id: mongoose.Types.ObjectId(userId) } }
     ]);
 
-    return messages[0];
+    if (messages.length > 0){
+        messages[0].messageDetails = [];
+        messages[0].messageDetails = await MessageDetail.aggregate([
+            {   
+                $project:{
+                    content: 1,
+                    messageId: 1,
+                    userId: 1,
+                    isRead: 1,
+                    createdAt: 1
+                } 
+            },
+            { $match: { messageId: mongoose.Types.ObjectId(messages[0].message._id)} },
+            {$sort: { createdAt: 1}}
+        ]);
+    }
+    return messages;
 }
+// {messages[0].messageDetails.map((msg, index) => {
+//     if (msg.userId === userId){(
+//       <MyMessage>
+//         <MessageBox style={{ backgroundColor: "#f9a392" }}>
+//           <p>{ msg.content }</p>
+//         </MessageBox>
+//       </MyMessage>
+//     )}
+//     else {(
+//       <AdminMessage>
+//         <MessageBox>
+//           <p style={{ color: "#000" }}>
+//           { msg.content }
+//           </p>
+//         </MessageBox>
+//       </AdminMessage>
+//     )}
+//   })}   
 
 const getAllMessages = async () => {
     var messages = await User.aggregate([
         {
-          $lookup: {
-            from: "messageId",
-            localField: "userId",
-            foreignField: "_id",
-            as: "message",
-          }
-        },
-        { $unwind: "$message" },
-        {
             $lookup: {
-              from: "messagedetails",
-              localField: "messageId",
-              foreignField: "$message._id",
-              as: "messagedetail",
+              from: "messages",
+              localField: "_id",
+              foreignField: "customerId",
+              as: "message",
             },
         },
-        { $unwind: "$messagedetail" },
+        { $unwind: "$message" },
         {   
             $project:{
                 _id : 1,
                 name : 1,
                 message : "$message",
-                messagedetails: "$messagedetail"
             } 
-        }
+        }    
     ]);
 
+    if (messages.length > 0){
+        for (var i = 0; i < messages.length; i++){
+            messages[i].messageDetails = [];
+            messages[i].messageDetails = await MessageDetail.aggregate([
+                {   
+                    $project:{
+                        content: 1,
+                        messageId: 1,
+                        userId: 1,
+                        isRead: 1,
+                        createdAt: 1
+                    } 
+                },
+                { $match: { messageId: messages[i].message._id} },
+                {$sort: { createdAt: 1}}
+            ]);
+        }   
+    }
+    console.log(messages);
     return messages;
+}
+
+const getMessageByUserId = async (userId) => {
+    var message = await Message.findOne({customerId: userId});
+    return message;
+}
+
+const createMessage = async (customerId) => {
+    var newMessage = new Message({
+        customerId: customerId,
+    });
+    await newMessage.save();
+    console.log(newMessage);
+    return newMessage;
+}
+
+const readMessages = async (customerId) => {
+    var message = await Message.findOne({ customerId: customerId});
+    await MessageDetail.updateMany({ messageId: message._id}, {"$set":{isRead: true}});
 }
 
 module.exports = {
     sendMessage,
-    getMessagesByUser,
-    getAllMessages
+    getMessagesByUserId,
+    getAllMessages,
+    getMessageByUserId,
+    createMessage,
+    readMessages
 }
