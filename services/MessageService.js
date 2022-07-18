@@ -111,7 +111,6 @@ const getAllMessages = async () => {
             ]);
         }   
     }
-    console.log(messages);
     return messages;
 }
 

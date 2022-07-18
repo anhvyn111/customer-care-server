@@ -112,11 +112,9 @@ io.on("connection", async (socket) => {
       })       
       messages[i].unreadMsg = count;
 
-      console.log("count", count);
     }
   }
   io.to(socket.id).emit('userMessages', messages);
-  console.log(socket.role, "messages: ", messages);
   // socket.on('userConnected', async () => {
   //   socket.join(socket.id);
   //   var messages = null;
@@ -174,7 +172,16 @@ io.on("connection", async (socket) => {
     else{
       messages = await getMessages(userId, userRole.Admin);
       io.to(userId).emit('newMessage', messages);
-      var socketMessages = await getMessages(id, userRole.Customer);
+      socketMessages = await _messageService.getAllMessages();
+      for (var i = 0; i < socketMessages.length; i++){
+        var count = 0;
+        socketMessages[i].messageDetails.forEach(d => {
+            if (d.isRead == false && d.userId == socketMessages[i].customerId){
+                count += 1;
+            } 
+        })       
+        socketMessages[i].unreadMsg = count;
+      }
       io.to(id).emit('userMessages', socketMessages);  
     }
   });
@@ -206,7 +213,6 @@ io.on("connection", async (socket) => {
     }
     io.to(id).emit('userMessages', messages);  
     console.log("user read");
-    console.log(messages);
   })
 
   socket.on("disconnect", (socket) => {
@@ -220,7 +226,6 @@ io.on("connection", async (socket) => {
 const getMessages = async (customerId, role) => {
   var msgs = [];
   if (role == userRole.Customer){
-    console.log("onlineUsers", onlineUsers);
     msgs = await _messageService.getAllMessages();
     for (var i = 0; i < msgs.length; i++){
       var count = 0;
@@ -229,6 +234,7 @@ const getMessages = async (customerId, role) => {
               count += 1;
           } 
       })       
+      console.log(count);
       msgs[i].unreadMsg = count;
     }
   }
