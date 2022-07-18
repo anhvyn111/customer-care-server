@@ -39,11 +39,22 @@ const getMessagesByUserId= async (userId) => {
     if (messages.length > 0){
         messages[0].messageDetails = [];
         messages[0].messageDetails = await MessageDetail.aggregate([
+            {
+                $lookup: {
+                  from: "users",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "user",
+                },
+            },
+            { $unwind: "$user" },
             {   
+                
                 $project:{
                     content: 1,
                     messageId: 1,
                     userId: 1,
+                    name: "$user.name",
                     isRead: 1,
                     createdAt: 1
                 } 
@@ -97,11 +108,21 @@ const getAllMessages = async () => {
         for (var i = 0; i < messages.length; i++){
             messages[i].messageDetails = [];
             messages[i].messageDetails = await MessageDetail.aggregate([
+                {
+                    $lookup: {
+                      from: "users",
+                      localField: "userId",
+                      foreignField: "_id",
+                      as: "user",
+                    },
+                },
+                { $unwind: "$user" },
                 {   
                     $project:{
                         content: 1,
                         messageId: 1,
                         userId: 1,
+                        name: "$user.name",
                         isRead: 1,
                         createdAt: 1
                     } 
@@ -130,7 +151,9 @@ const createMessage = async (customerId) => {
 
 const readMessages = async (customerId) => {
     var message = await Message.findOne({ customerId: customerId});
-    await MessageDetail.updateMany({ messageId: message._id}, {"$set":{isRead: true}});
+    if (message != null){
+        await MessageDetail.updateMany({ messageId: message._id}, {"$set":{isRead: true}});
+    }
 }
 
 module.exports = {

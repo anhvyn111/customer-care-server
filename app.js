@@ -175,14 +175,17 @@ io.on("connection", async (socket) => {
       socketMessages = await _messageService.getAllMessages();
       for (var i = 0; i < socketMessages.length; i++){
         var count = 0;
-        socketMessages[i].messageDetails.forEach(d => {
-            if (d.isRead == false && d.userId == socketMessages[i].customerId){
-                count += 1;
-            } 
-        })       
-        socketMessages[i].unreadMsg = count;
+        onlineUsers.forEach(async x => {
+          socketMessages[i].messageDetails.forEach(d => {
+              if (d.isRead == false && d.userId == socketMessages[i].customerId){
+                  count += 1;
+              } 
+          })       
+          socketMessages[i].unreadMsg = count;
+          if (x.role == userRole.Admin || x.role == userRole.Staff)
+            io.to(x.id).emit('userMessages', socketMessages);  
+        }) 
       }
-      io.to(id).emit('userMessages', socketMessages);  
     }
   });
 
