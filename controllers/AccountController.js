@@ -5,6 +5,7 @@ const userService = require("../services/UserService.js");
 const _smsService = require("../services/SmsService");
 const userRole = require("../models/Role.js");
 const auth = require("../middlewares/auth");
+const { response } = require("express");
 dotenv.config();
 
 router.post("/login", async (req, res) => {
@@ -53,5 +54,21 @@ router.delete("/", async (req, res) => {
   if (!result) res.status(404);
   return res.status(200);
 });
+
+router.post("/changepwd", auth.isStaff, async (req, res) => {
+  var oldPwd = req.body.oldPassword;
+  var newPwd = req.body.newPassword;
+
+  var authen = await userService.authenticate(req.user.username, oldPwd, [userRole.Admin, userRole.Staff]);
+  if (authen == -1){
+    return res.status(400).json("Password is invalid");
+  }
+
+  if (newPwd === oldPwd){
+    return res.status(400).json("The new password cannot be the same as the old password.");
+  }
+  await userService.changePassword(req.user.username, newPwd);
+  return res.status(200).json(true);
+})
 
 module.exports = router;

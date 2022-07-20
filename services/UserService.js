@@ -216,6 +216,12 @@ deleteUser = async (id) => {
   await Account.findByIdAndDelete(user.accountId);
 };
 
+changePassword = async (username, newPassword) => {
+  var salt = await bcrypt.genSalt(10);
+  var hashedPassword = await bcrypt.hash(newPassword, salt);
+  await Account.findOneAndUpdate({ username: username }, { password: hashedPassword });
+}
+
 module.exports = {
   authenticate,
   create,
@@ -226,4 +232,5 @@ module.exports = {
   getAllUsers,
   getCustomersHasBirthDay,
   updateUser,
+  changePassword
 };

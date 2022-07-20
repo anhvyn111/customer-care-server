@@ -120,4 +120,20 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
     }
 })
 
+router.post("/changepwd", auth.isUser, async (req, res) => {
+  var oldPwd = req.body.oldPassword;
+  var newPwd = req.body.newPassword;
+
+  var authen = await userService.authenticate(req.user.username, oldPwd, [userRole.Customer]);
+  if (authen == -1){
+    return res.status(400).json("Password is invalid");
+  }
+
+  if (newPwd === oldPwd){
+    return res.status(400).json("The new password cannot be the same as the old password.");
+  }
+  await userService.changePassword(req.user.username, newPwd);
+  return res.status(200).json(true);
+})
+
 module.exports = router;
