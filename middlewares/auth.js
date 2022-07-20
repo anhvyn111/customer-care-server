@@ -39,7 +39,7 @@ const isStaff = (req, res, next) => {
                 return res.status(401).json("Token is not valid.");
             } 
             if (account.role == UserRole.Admin || account.role == UserRole.Staff){
-                req.user = User.findOne({ accountId: account._id });
+                req.user = account;
                 req.role = account.role;
                 next();
             }
@@ -68,7 +68,7 @@ const isAdmin = (req, res, next) => {
             if (account.role != UserRole.Admin){
                 return res.status(403).json("You do not have permission.");
             }
-            req.user = User.findOne({ accountId: account._id });
+            req.user = account;
             req.role = account.role;
             next();
         }   
