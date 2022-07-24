@@ -93,6 +93,7 @@ const getAllAppointments = async () => {
         _id: 1,
         customerName: 1,
         phoneNumber: 1,
+        customerId:1,
         appointmentType: "$appointmentType",
         customer:{ '$ifNull': ["$customer", "NULL"] },
         staff: "$staff",
@@ -118,6 +119,7 @@ createAppointment = async (appointment) => {
 };
 createAppointmentWithOutCustomerId = async (appointment) => {
   var newAppointment = new Appointment({
+    customerId:null,
     phoneNumber: appointment.phoneNumber,
     customerName: appointment.customerName,
     staffId: appointment.staffId,
@@ -163,6 +165,7 @@ getAppointmentsByTypeId = async (typeId) => {
 const deleteAppointmentByTypeId = async (typeId) => {
   await Appointment.deleteMany({ appointmentTypeId: typeId });
 };
+
 
 const isCustomerBookThisTime = async(id, time) => {
   var appointments = await Appointment.find({ customerId: id});
