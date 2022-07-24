@@ -15,7 +15,7 @@ const sendMessage = async (message) => {
     return newMessageDetail;
 }
 
-const getMessagesByUserId= async (userId) => {
+const getMessagesByUserId = async (userId) => {
     var messages = await User.aggregate([
         {
             $lookup: {

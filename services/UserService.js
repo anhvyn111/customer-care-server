@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
 const userRole = require("../models/Role");
 const mongoose = require("mongoose");
+const Appointment = require("../mongoose-entities/Appointment");
 
 authenticate = async (username, password, roles) => {
   const existingAccount = await Account.findOne({ username: username }).exec();
@@ -222,6 +223,31 @@ changePassword = async (username, newPassword) => {
   await Account.findOneAndUpdate({ username: username }, { password: hashedPassword });
 }
 
+getAvailableStaffAtTime = async (time) => {
+  var users = await getAllUsers(userRole.Staff);
+  var availableStaffs = [];
+  for(var i = 0; i < users.length; i++){
+    users[i].appointments = await Appointment.find({ staffId: users[i]._id});
+    console.log(users[i].appointments);
+    var count = 0;
+    if (users[i].appointments.length == 0){
+      availableStaffs.push(users[i]);
+    }
+    else{
+      users[i].appointments.forEach(a => {
+        if ((a.date.getTime() >= (time - 59*60*1000) && a.date.getTime() <= time) ||
+        (a.date.getTime() <= (time + 59*60*1000) && a.date.getTime() >= time)){
+          count += 1;
+        }
+      })
+      if (count == 0){
+        availableStaffs.push(users[i]);
+      }
+    }
+  }
+  return availableStaffs;
+}
+
 module.exports = {
   authenticate,
   create,
@@ -232,5 +258,6 @@ module.exports = {
   getAllUsers,
   getCustomersHasBirthDay,
   updateUser,
-  changePassword
-};
+  changePassword,
+  getAvailableStaffAtTime
+}
