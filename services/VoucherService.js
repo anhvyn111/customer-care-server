@@ -64,8 +64,10 @@ const createCustomerVoucher = async (customerVoucher) => {
         customerId: customerVoucher.customerId,
         dueDate: customerVoucher.dueDate
     });
-    await newCustomerVoucher.save();
-    return newCustomerVoucher;
+    var result = await newCustomerVoucher.save();
+
+    var customerVoucher = await getCustomerVoucherById(result._id);
+    return customerVoucher;
 }
 
 const deleteCustomerVoucher = async(id) => {
