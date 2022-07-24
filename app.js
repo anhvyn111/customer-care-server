@@ -68,7 +68,7 @@ io.use(async (socket, next) => {
     console.log(token);
     await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
       if (err) {
-        res.status(401).json("You need to login");
+        return;
       } else {
         const user = await _userService.getByUserName(data.username);
         socket.id = user._id.toString().replace(/ObjectId\("(.*)"\)/, "$1");
