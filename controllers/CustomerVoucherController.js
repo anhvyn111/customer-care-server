@@ -70,7 +70,7 @@ router.post("/", auth.isStaff, async (req, res) => {
     var newcustomerVoucher = {
       voucherId,
       customerId,
-      dueDate: new Date().setDate(voucher.duration),
+      dueDate: (new Date().getTime() + 60*60*1000*24*voucher.duration),
     };
     newCustomerVoucher = await _voucherService.createCustomerVoucher(
       newcustomerVoucher
