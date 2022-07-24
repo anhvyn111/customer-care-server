@@ -1,6 +1,8 @@
 const AppointmentType = require("../mongoose-entities/AppointmentType");
 const Appointment = require("../mongoose-entities/Appointment");
 const mongoose = require("mongoose");
+const _userService = require("../services/UserService");
+const { AddressInstance } = require("twilio/lib/rest/api/v2010/account/address");
 
 const getAppointmentTypeById = async (id) => {
   var appointmentType = await AppointmentType.findById(id);
@@ -111,7 +113,7 @@ createAppointment = async (appointment) => {
     date: appointment.date,
   });
   var result = await newAppointment.save();
-  if (result) return await getById(result._id);
+  if (result) return await getAppointmentById(result._id);
   return null;
 };
 createAppointmentWithOutCustomerId = async (appointment) => {
@@ -162,6 +164,21 @@ const deleteAppointmentByTypeId = async (typeId) => {
   await Appointment.deleteMany({ appointmentTypeId: typeId });
 };
 
+const isCustomerBookThisTime = async(id, time) => {
+  var appointments = await Appointment.find({ customerId: id});
+  var count = 0;
+ appointments.forEach(a => {
+    if ((a.date.getTime() >= (time - 59*60*1000) && a.date.getTime() <= time) ||
+     (a.date.getTime() <= (time + 59*60*1000) && a.date.getTime() >= time)){
+      count += 1;
+    }
+  })
+  if(count > 0){
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   getAppointmentTypeById,
   getAllAppointmentTypes,
@@ -176,4 +193,5 @@ module.exports = {
   deleteAppointmentType,
   getAppointmentsByTypeId,
   deleteAppointmentByTypeId,
+  isCustomerBookThisTime
 };

@@ -26,16 +26,12 @@ router.get("/:id", auth.isUser, async (req, res) => {
   return res.status(200).json(appointment);
 });
 
-router.post(
-  "/",
-  
-  async (req, res) => {
+router.post("/", async (req, res) => {
     try {
       const appointment = {
         appointmentTypeId: req.body.appointmentTypeId,
         phoneNumber: req.body.phoneNumber,
         customerName: req.body.customerName,
-        staffId: req.body.staffId,
         customerId: req.body.customerId,
         date: Date.parse(req.body.date),
       };
@@ -43,22 +39,31 @@ router.post(
       const appointmentType = await _appointmentService.getAppointmentTypeById(
         appointment.appointmentTypeId
       );
-      const staff = await _userService.getUserById(
-        appointment.staffId,
-        userRole.Staff
-      );
+      const availableStaffs = await _userService.getAvailableStaffAtTime(appointment.date);
+
+      if (availableStaffs.length == 0){
+        return res.status(400).json("This booking time is not available. Because no staff is avaiable at this time.")
+      }
+
+      appointment.staffId = availableStaffs[0]._id;
+
       if (appointment.customerId !== "") {
         const customer = await _userService.getUserById(
           appointment.customerId,
           userRole.Customer
         );
 
-        if (appointmentType == null || staff == null || customer == null)
+        if (appointmentType == null || customer == null)
           return res.status(400).json("Something was wrong.");
+        const isCustomerBookThisTime = await _appointmentService.isCustomerBookThisTime(customer._id, appointment.date);
+
+        if (isCustomerBookThisTime){
+          return res.status(400).json("Customer already had a appointment at this time.");
+        }
         const result = await _appointmentService.createAppointment(appointment);
         return res.status(200).json(result);
       } else {
-        if (appointmentType == null || staff == null)
+        if (appointmentType == null)
           return res.status(400).json("Something was wrong.");
         const result =
           await _appointmentService.createAppointmentWithOutCustomerId(
