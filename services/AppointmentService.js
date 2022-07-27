@@ -167,10 +167,16 @@ const deleteAppointmentByTypeId = async (typeId) => {
 };
 
 
-const isCustomerBookThisTime = async(id, time) => {
-  var appointments = await Appointment.find({ customerId: id});
+const isCustomerBookThisTime = async(id,phoneNumber, time) => {
+  let appointments = []
+  if(phoneNumber === ""){
+    appointments = await Appointment.find({ customerId: id});
+  
+  }else{
+    appointments = await Appointment.find({phoneNumber:phoneNumber})
+  }
   var count = 0;
- appointments.forEach(a => {
+  appointments.forEach(a => {
     if ((a.date.getTime() >= (time - 59*60*1000) && a.date.getTime() <= time) ||
      (a.date.getTime() <= (time + 59*60*1000) && a.date.getTime() >= time)){
       count += 1;
