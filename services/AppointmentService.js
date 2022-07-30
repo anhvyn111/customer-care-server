@@ -1,6 +1,8 @@
 const AppointmentType = require("../mongoose-entities/AppointmentType");
 const Appointment = require("../mongoose-entities/Appointment");
 const mongoose = require("mongoose");
+const _userService = require("../services/UserService");
+const { AddressInstance } = require("twilio/lib/rest/api/v2010/account/address");
 
 const getAppointmentTypeById = async (id) => {
   var appointmentType = await AppointmentType.findById(id);
@@ -13,7 +15,6 @@ const getAllAppointmentTypes = async () => {
 };
 
 const getAppointmentById = async (appointmentId) => {
-    console.log(appointmentId);
     const appointment =  await Appointment.aggregate([
         {
           $lookup: {
@@ -54,8 +55,6 @@ const getAppointmentById = async (appointmentId) => {
         },
         { $match: { _id: mongoose.Types.ObjectId(appointmentId) } }
     ]);
-
-  console.log(appointment);
   return appointment[0];
 };
 
@@ -79,7 +78,7 @@ const getAllAppointments = async () => {
         as: "customer",
       },
     },
-    { $unwind: "$customer" },
+    { $unwind: {path:"$customer",preserveNullAndEmptyArrays: true}  },
     {
       $lookup: {
         from: "users",
@@ -92,17 +91,18 @@ const getAllAppointments = async () => {
     {
       $project: {
         _id: 1,
-        name: 1,
-        userName: 1,
+        customerName: 1,
+        phoneNumber: 1,
+        customerId:1,
         appointmentType: "$appointmentType",
-        customer: "$customer",
+        customer:{ '$ifNull': ["$customer", "NULL"] },
         staff: "$staff",
         date: 1,
         updatedAt: 1,
       },
     },
   ]);
-
+ 
   return appointments;
 };
 
@@ -114,11 +114,12 @@ createAppointment = async (appointment) => {
     date: appointment.date,
   });
   var result = await newAppointment.save();
-  if (result) return await getById(result._id);
+  if (result) return await getAppointmentById(result._id);
   return null;
 };
 createAppointmentWithOutCustomerId = async (appointment) => {
   var newAppointment = new Appointment({
+    customerId:null,
     phoneNumber: appointment.phoneNumber,
     customerName: appointment.customerName,
     staffId: appointment.staffId,
@@ -165,6 +166,22 @@ const deleteAppointmentByTypeId = async (typeId) => {
   await Appointment.deleteMany({ appointmentTypeId: typeId });
 };
 
+
+const isCustomerBookThisTime = async(id, time) => {
+  var appointments = await Appointment.find({ customerId: id});
+  var count = 0;
+ appointments.forEach(a => {
+    if ((a.date.getTime() >= (time - 59*60*1000) && a.date.getTime() <= time) ||
+     (a.date.getTime() <= (time + 59*60*1000) && a.date.getTime() >= time)){
+      count += 1;
+    }
+  })
+  if(count > 0){
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   getAppointmentTypeById,
   getAllAppointmentTypes,
@@ -179,4 +196,5 @@ module.exports = {
   deleteAppointmentType,
   getAppointmentsByTypeId,
   deleteAppointmentByTypeId,
+  isCustomerBookThisTime
 };

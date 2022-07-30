@@ -3,10 +3,10 @@ const bcrypt = require("bcrypt");
 const User = require("../mongoose-entities/User");
 const userRole = require("../models/Role");
 const mongoose = require("mongoose");
+const Appointment = require("../mongoose-entities/Appointment");
 
 authenticate = async (username, password, roles) => {
   const existingAccount = await Account.findOne({ username: username }).exec();
-  console.log(existingAccount);
   if (existingAccount == null) {
     return -1;
   }
@@ -86,7 +86,6 @@ getCustomersHasBirthDay = async () => {
     customers.forEach(c => {
         let day = c.birth.getDate();
         let month = c.birth.getMonth();
-        console.log(month, day);
         if ( now.getDate() == day && now.getMonth() == month){
             birthCustomers.push(c);
         }
@@ -218,6 +217,37 @@ deleteUser = async (id) => {
   await Account.findByIdAndDelete(user.accountId);
 };
 
+changePassword = async (username, newPassword) => {
+  var salt = await bcrypt.genSalt(10);
+  var hashedPassword = await bcrypt.hash(newPassword, salt);
+  await Account.findOneAndUpdate({ username: username }, { password: hashedPassword });
+}
+
+getAvailableStaffAtTime = async (time) => {
+  var users = await getAllUsers(userRole.Staff);
+  var availableStaffs = [];
+  for(var i = 0; i < users.length; i++){
+    users[i].appointments = await Appointment.find({ staffId: users[i]._id});
+    console.log(users[i].appointments);
+    var count = 0;
+    if (users[i].appointments.length == 0){
+      availableStaffs.push(users[i]);
+    }
+    else{
+      users[i].appointments.forEach(a => {
+        if ((a.date.getTime() >= (time - 59*60*1000) && a.date.getTime() <= time) ||
+        (a.date.getTime() <= (time + 59*60*1000) && a.date.getTime() >= time)){
+          count += 1;
+        }
+      })
+      if (count == 0){
+        availableStaffs.push(users[i]);
+      }
+    }
+  }
+  return availableStaffs;
+}
+
 module.exports = {
   authenticate,
   create,
@@ -228,4 +258,6 @@ module.exports = {
   getAllUsers,
   getCustomersHasBirthDay,
   updateUser,
-};
+  changePassword,
+  getAvailableStaffAtTime
+}

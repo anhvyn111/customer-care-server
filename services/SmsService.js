@@ -4,7 +4,6 @@ const twilio = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWI
 
 function sendSms (number, message) {
     number = number.replace('0', '+84');
-    console.log(number);
     twilio.messages.create({
         body: message,
         to: number,
@@ -16,7 +15,6 @@ function sendSms (number, message) {
 
 function verifyNumber (name, number) {
     number = number.replace('0', '+84');
-    console.log(number)
     twilio.validationRequests
     .create({friendlyName: name, phoneNumber: number})
     .then(validation_request => console.log(validation_request.friendlyName))

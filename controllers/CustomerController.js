@@ -113,7 +113,6 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
     try{
         var id = req.params.id;
         var customer = await userService.getUserById(id, userRole.Customer);
-        console.log(customer);
         if (customer == null){
             return res.status(404).json("Customer not found");
         }
@@ -123,6 +122,22 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
     catch(err){
         return res.status(400).json(err);
     }
+})
+
+router.post("/changepwd", auth.isUser, async (req, res) => {
+  var oldPwd = req.body.oldPassword;
+  var newPwd = req.body.newPassword;
+
+  var authen = await userService.authenticate(req.user.username, oldPwd, [userRole.Customer]);
+  if (authen == -1){
+    return res.status(400).json("Password is invalid");
+  }
+
+  if (newPwd === oldPwd){
+    return res.status(400).json("The new password cannot be the same as the old password.");
+  }
+  await userService.changePassword(req.user.username, newPwd);
+  return res.status(200).json(true);
 })
 
 module.exports = router;

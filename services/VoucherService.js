@@ -41,7 +41,6 @@ const getAllVouchers = async () => {
 
 const getVoucherById = async (id) => {
     var voucher = await Voucher.findById(id);
-    console.log("Voucher", voucher);
     return voucher;
 }
 const getVoucherByCode = async (voucherCode) => {
@@ -65,8 +64,10 @@ const createCustomerVoucher = async (customerVoucher) => {
         customerId: customerVoucher.customerId,
         dueDate: customerVoucher.dueDate
     });
-    await newCustomerVoucher.save();
-    return newCustomerVoucher;
+    var result = await newCustomerVoucher.save();
+
+    var customerVoucher = await getCustomerVoucherById(result._id);
+    return customerVoucher;
 }
 
 const deleteCustomerVoucher = async(id) => {
@@ -177,7 +178,6 @@ const getCustomerVoucherById = async (id) => {
 
 const isCustomerVoucherExisted = async (voucherId, customerId) => {
     var customerVoucher = await CustomerVoucher.findOne({ voucherId: voucherId, customerId: customerId });
-    console.log(customerVoucher);
     if(customerVoucher != null){
         return true;
     }
