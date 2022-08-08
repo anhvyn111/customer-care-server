@@ -13,9 +13,13 @@ const UserSchema = new mongoose.Schema(
     },
     birth: {
       type: Date,
+      required: true
     },
     email: {
       type: String,
+    },
+    rank: {
+      type: String
     },
     accountId: {
       type: mongoose.Schema.Types.ObjectId,

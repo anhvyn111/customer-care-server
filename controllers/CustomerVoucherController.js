@@ -2,6 +2,8 @@ const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const _voucherService = require("../services/VoucherService");
 const _userService = require("../services/UserService");
+const moment = require("moment");
+const _smsService = require("../services/SmsService");
 
 router.get("/", auth.isStaff, async (req, res) => {
   try {
@@ -79,6 +81,8 @@ router.post("/", auth.isStaff, async (req, res) => {
     if (newcustomerVoucher == null) {
       return res.status(500);
     }
+    var message = `Xin chào ${customer.name}\nSpa Center gửi tặng bạn voucher "${voucher.voucherName}"\nMã voucher:${voucher.voucherCode}\nNgày hết hạn:${moment(newCustomerVoucher.dueDate).lang("vn").format('LL')}`;
+    await _smsService.sendSms(customer.phoneNumber, message);
     return res.status(200).json(newcustomerVoucher);
   } catch (error) {
     console.log(error)

@@ -114,6 +114,10 @@ io.on("connection", async (socket) => {
 
     }
   }
+
+
+  
+
   io.to(socket.id).emit('userMessages', messages);
   // socket.on('userConnected', async () => {
   //   socket.join(socket.id);

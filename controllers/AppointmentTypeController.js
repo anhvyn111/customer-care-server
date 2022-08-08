@@ -1,8 +1,7 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const _appointmentService = require("../services/AppointmentService");
-const _smsService = require("../services/SmsService");
-const _userService = require("../services/UserService");
+const moment = require("moment");
 
 router.get('/', async (req, res) => {
     const appointments = await _appointmentService.getAllAppointmentTypes();

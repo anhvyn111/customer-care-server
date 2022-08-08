@@ -140,6 +140,8 @@ const getMessageByUserId = async (userId) => {
     return message;
 }
 
+
+
 const createMessage = async (customerId) => {
     var newMessage = new Message({
         customerId: customerId,

@@ -60,9 +60,13 @@ router.get('/', auth.isStaff, async (req, res) => {
 router.get('/:id', auth.isUser, async (req, res) => {
     try{
         var id = req.params.id;
-        var customer = await userService.getById(id);
-        if (!customer) {
-        return res.status(400).json({ message: "User is not existed " });
+
+        if (req.role == userRole.Customer && req.user._id.equals(id)){
+          return res.status(403).json("You do not have permission");
+        }
+        var customer = await userService.getUserById(id, userRole.Customer);
+        if (customer === null) {
+          return res.status(400).json({ message: "User is not existed " });
         }
         return res.status(200).json(customer);
     } catch (error) {
