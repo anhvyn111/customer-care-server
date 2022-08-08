@@ -4,7 +4,7 @@ const _appointmentService = require("../services/AppointmentService");
 const _smsService = require("../services/SmsService");
 const _userService = require("../services/UserService");
 const userRole = require("../models/Role");
-
+const moment = require("moment");
 router.get("/", auth.isUser, async (req, res) => {
   var appointments = await _appointmentService.getAllAppointments();
   if (
@@ -60,6 +60,10 @@ router.post("/", async (req, res) => {
           return res.status(400).json("Customer already had a appointment at this time.");
         }
         const result = await _appointmentService.createAppointment(appointment);
+        if(result) {
+          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(result.date).format('LLL')}`;
+          await _smsService.sendSms(result.customer.phoneNumber, message)
+        }
         return res.status(200).json(result);
       } else {
         if (appointmentType == null)
@@ -68,13 +72,16 @@ router.post("/", async (req, res) => {
           await _appointmentService.createAppointmentWithOutCustomerId(
             appointment
           );
+          if(result) {
+            var message = `Xin chào ${result.customer.name}\n
+            Bạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(result.date).format('LLL')}
+            "`;
+            console.log(message);
+            await _smsService.sendSms(result.customer.phoneNumber, message)
+        }
         return res.status(200).json(result);
       }
-      // if(result) {
-      //     var message = `Xin chào ${result.customer.name}\nNguyễn Anh Vy muốn gửi lời yêu thương đến bạn "I luv you <3"`;
-      //     console.log(message);
-      //    //await _smsService.sendSms(result.customer.phoneNumber, message)
-      // }
+      
     } catch (err) {
       console.log(err)
       res.status(400).json(err);
