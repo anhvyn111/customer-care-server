@@ -59,10 +59,15 @@ router.post("/", async (req, res) => {
         if (isCustomerBookThisTime){
           return res.status(400).json("Customer already had a appointment at this time.");
         }
+
+        if (appointment.date % (60*10*1000) > 0){
+          appointment.date = appointment.date - (appointment.date % (60*10*1000)) + (10*60*1000);
+        }
+
         const result = await _appointmentService.createAppointment(appointment);
         if(result) {
-          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(result.date).format('LLL')}`;
-          await _smsService.sendSms(result.customer.phoneNumber, message)
+          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(appointment.date).format('DD/MM/yyyy h:mm a')}`;
+          await _smsService.sendSms(result.customer.phoneNumber, message) 
         }
         return res.status(200).json(result);
       } else {

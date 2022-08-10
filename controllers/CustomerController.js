@@ -109,7 +109,7 @@ router.put('/:id', auth.isUser, async (req, res) => {
     }
 })
 
-router.delete('/:id', auth.isAdmin, async (req, res) => {
+router.delete('/:id', auth.isStaff, async (req, res) => {
     try{
         var id = req.params.id;
         var customer = await userService.getUserById(id, userRole.Customer);

@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const twilio = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilio = require("twilio")("AC8982979f9b30ac33358d3f7b9139fdc9", "8f17e2ebb329d94edc645763fa988822");
 
 function sendSms (number, message) {
     number = number.replace('0', '+84');

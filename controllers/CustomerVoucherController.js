@@ -81,7 +81,7 @@ router.post("/", auth.isStaff, async (req, res) => {
     if (newcustomerVoucher == null) {
       return res.status(500);
     }
-    var message = `Xin chào ${customer.name}\nSpa Center gửi tặng bạn voucher "${voucher.voucherName}"\nMã voucher:${voucher.voucherCode}\nNgày hết hạn:${moment(newCustomerVoucher.dueDate).lang("vn").format('LL')}`;
+    var message = `Xin chào ${customer.name}\nSpa Center gửi tặng bạn voucher "${voucher.voucherName}"\nMã voucher:${voucher.voucherCode}\nNgày hết hạn:${moment(newCustomerVoucher.dueDate).format('DD/MM/yyyy')}`;
     await _smsService.sendSms(customer.phoneNumber, message);
     return res.status(200).json(newcustomerVoucher);
   } catch (error) {
