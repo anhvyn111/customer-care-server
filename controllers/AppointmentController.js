@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
 
         if (appointmentType == null || customer == null)
           return res.status(400).json("Something was wrong.");
-        const isCustomerBookThisTime = await _appointmentService.isCustomerBookThisTime(customer._id, appointment.date);
+        const isCustomerBookThisTime = await _appointmentService.isCustomerBookThisTime(customer._id,"", appointment.date);
 
         if (isCustomerBookThisTime){
           return res.status(400).json("Customer already had a appointment at this time.");
@@ -73,6 +73,12 @@ router.post("/", async (req, res) => {
       } else {
         if (appointmentType == null)
           return res.status(400).json("Something was wrong.");
+  
+        const isCustomerBookThisTime = await _appointmentService.isCustomerBookThisTime("",appointment.phoneNumber, appointment.date);
+
+        if (isCustomerBookThisTime){
+          return res.status(400).json("Customer already had a appointment at this time.");
+        }
         const result =
           await _appointmentService.createAppointmentWithOutCustomerId(
             appointment
