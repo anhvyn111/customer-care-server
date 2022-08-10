@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
 
         const result = await _appointmentService.createAppointment(appointment);
         if(result) {
-          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(appointment.date).format('DD/MM/yyyy h:mm a')}`;
+          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(appointment.date+(7*1000*60)).format('DD/MM/yyyy h:mm a')}`;
           await _smsService.sendSms(result.customer.phoneNumber, message) 
         }
         return res.status(200).json(result);
