@@ -61,7 +61,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
     try{
         var id = req.params.id;
 
-        if (req.role == userRole.Customer && req.user._id.equals(id)){
+        if (req.role == userRole.Customer && !req.user._id.equals(id)){
           return res.status(403).json("You do not have permission");
         }
         var customer = await userService.getUserById(id, userRole.Customer);
