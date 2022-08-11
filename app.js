@@ -106,7 +106,7 @@ io.on("connection", async (socket) => {
     for (var i = 0; i < messages.length; i++){
       var count = 0;
       messages[i].messageDetails.forEach(d => {
-          if (d.isRead == false && d.userId != messages[i].customerId){
+          if (d.isRead == false && d.userId.equals(messages[i].message.customerId)){
               count += 1;
           } 
       })       
@@ -114,9 +114,6 @@ io.on("connection", async (socket) => {
 
     }
   }
-
-
-  
 
   io.to(socket.id).emit('userMessages', messages);
   // socket.on('userConnected', async () => {
@@ -196,14 +193,17 @@ io.on("connection", async (socket) => {
 
   socket.on("readMessages", async (customerId) => {
     if (socket.role == userRole.Customer){
-      await _messageService.readMessages(id);
       messages = await _messageService.getMessagesByUserId(socket.id);
-      messages.forEach(msg => {
-        msg.unreadMsg = 0;
-        if (msg.messageDetails.length > 0){
-          msg.unreadMsg = msg.messageDetails.filter(x => x.isRead == false && x.userId != id).length;
-        }
-      })
+      var lastMsg = messages[0].messageDetails[messages[0].messageDetails.length - 1];
+      if (!lastMsg.userId.equals(socket.id)){
+        await _messageService.readMessages(id);
+        messages.forEach(msg => {
+          msg.unreadMsg = 0;
+          if (msg.messageDetails.length > 0){
+            msg.unreadMsg = msg.messageDetails.filter(x => x.isRead == false && x.userId != id).length;
+          }
+        })
+      }    
     }
     else {
       await _messageService.readMessages(customerId);
