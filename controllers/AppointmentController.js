@@ -46,6 +46,10 @@ router.post("/", async (req, res) => {
 
       appointment.staffId = availableStaffs[0]._id;
 
+      if (appointment.date % (60*10*1000) > 0){
+        appointment.date = appointment.date - (appointment.date % (60*10*1000)) + (10*60*1000);
+      }
+
       if (appointment.customerId !== "") {
         const customer = await _userService.getUserById(
           appointment.customerId,
@@ -60,13 +64,9 @@ router.post("/", async (req, res) => {
           return res.status(400).json("Customer already had a appointment at this time.");
         }
 
-        if (appointment.date % (60*10*1000) > 0){
-          appointment.date = appointment.date - (appointment.date % (60*10*1000)) + (10*60*1000);
-        }
-
         const result = await _appointmentService.createAppointment(appointment);
         if(result) {
-          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(appointment.date+(7*1000*60)).format('DD/MM/yyyy h:mm a')}`;
+          var message = `Xin chào ${result.customer.name}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(result.date).format('DD/MM/yyyy h:mm a')}`;
           await _smsService.sendSms(result.customer.phoneNumber, message) 
         }
         return res.status(200).json(result);
@@ -77,13 +77,8 @@ router.post("/", async (req, res) => {
           await _appointmentService.createAppointmentWithOutCustomerId(
             appointment
           );
-          if(result) {
-            var message = `Xin chào ${result.customer.name}\n
-            Bạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(result.date).format('LLL')}
-            "`;
-            console.log(message);
-            await _smsService.sendSms(result.customer.phoneNumber, message)
-        }
+          var message = `Xin chào ${appointment.customerName}\nBạn vừa đặt lịch hẹn tại Spa Center thành công vào ngày ${moment(appointment.date).format('DD/MM/yyyy h:mm a')}`;
+          await _smsService.sendSms(appointment.phoneNumber, message)
         return res.status(200).json(result);
       }
       
